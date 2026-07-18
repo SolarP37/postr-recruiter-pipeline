@@ -24,8 +24,8 @@ storage. Before public deployment:
 
 1. Select the owner-controlled Supabase Postgres project or another supported
    persistent Postgres database.
-2. Change the Prisma provider from `sqlite` to `postgresql` on a deployment
-   branch.
+2. Review the production schema and migrations in `prisma/postgresql`. The
+   default `prisma/schema.prisma` remains SQLite-only for local development.
 3. In Supabase Dashboard, open the project and select **Connect**.
 4. Set the transaction-pooler connection as `DATABASE_URL` and the direct
    connection as `DIRECT_URL`. These values contain credentials and must be
@@ -37,8 +37,23 @@ storage. Before public deployment:
 6. The application does not use Supabase Auth or the Supabase JavaScript
    client. Do not configure an anon key, publishable key, service-role key, or
    Supabase Auth redirects for this deployment.
-7. Generate and review the first production migration.
-8. Back up the database and test restore procedures.
+7. Validate and generate the PostgreSQL client:
+
+   ```powershell
+   npm run db:schemas:check
+   npm run db:postgres:validate
+   npm run db:postgres:generate
+   ```
+
+8. Review the SQL in `prisma/postgresql/migrations`, then apply it from a
+   trusted deployment environment:
+
+   ```powershell
+   npm run db:postgres:migrate:deploy
+   ```
+
+   Never run this command against production from an unreviewed branch.
+9. Back up the database and test restore procedures.
 
 Do not create paid cloud resources automatically.
 

@@ -13,6 +13,10 @@
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
+    "db:schemas:check": "node scripts/check-prisma-schema-parity.mjs",
+    "db:postgres:validate": "prisma validate --schema prisma/postgresql/schema.prisma",
+    "db:postgres:generate": "prisma generate --schema prisma/postgresql/schema.prisma",
+    "db:postgres:migrate:deploy": "prisma migrate deploy --schema prisma/postgresql/schema.prisma",
     "auth:hash": "node scripts/hash-password.mjs"
   },
   "dependencies": {

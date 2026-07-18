@@ -1,0 +1,119 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum ProspectStatus {
+  CAPTURED
+  NEEDS_REVIEW
+  APPROVED
+  REJECTED
+  DRAFT_CREATED
+  SENT
+  REPLIED
+  INTERESTED
+  REFERRAL_SENT
+  JOINED
+  BOUNCED
+  OPTED_OUT
+  SUPPRESSED
+  NO_EMAIL_FOUND
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Prospect {
+  id                      String            @id @default(cuid())
+  createdAt               DateTime          @default(now())
+  updatedAt               DateTime          @updatedAt
+  email                   String?
+  normalizedEmail         String?
+  displayName             String?
+  sourcePlatform          String
+  sourceUrl               String?
+  campaign                String?
+  screenshotPath          String?
+  visibleEmailEvidence    String?
+  extractionConfidence    Float?
+  status                  ProspectStatus    @default(CAPTURED)
+  notes                   String?
+  doNotContact            Boolean           @default(false)
+  gmailDraftId            String?
+  referralLinkGeneratedAt DateTime?
+  referralLinkCopiedAt    DateTime?
+  referralLinkSentAt      DateTime?
+  joinedAt                DateTime?
+  outreachMessages        OutreachMessage[]
+  sourceAssets            SourceAsset[]
+
+  @@index([normalizedEmail])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model OutreachMessage {
+  id             String         @id @default(cuid())
+  prospectId     String
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  subject        String
+  body           String
+  approvalStatus ApprovalStatus @default(PENDING)
+  gmailDraftId   String?
+  sentAt         DateTime?
+  prospect       Prospect       @relation(fields: [prospectId], references: [id], onDelete: Cascade)
+
+  @@index([prospectId])
+}
+
+model SourceAsset {
+  id            String   @id @default(cuid())
+  prospectId    String
+  filePath      String
+  mimeType      String
+  extractedText String?
+  createdAt     DateTime @default(now())
+  prospect      Prospect @relation(fields: [prospectId], references: [id], onDelete: Cascade)
+
+  @@index([prospectId])
+}
+
+model SuppressionEntry {
+  id              String   @id @default(cuid())
+  normalizedEmail String   @unique
+  reason          String
+  createdAt       DateTime @default(now())
+}
+
+model AuditEvent {
+  id         String   @id @default(cuid())
+  action     String
+  entityType String
+  entityId   String?
+  metadata   String?
+  createdAt  DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}
+
+model OAuthToken {
+  id                    String    @id @default("google")
+  provider              String    @unique
+  encryptedAccessToken  String?
+  encryptedRefreshToken String?
+  scope                 String?
+  tokenType             String?
+  expiryDate            DateTime?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+}
