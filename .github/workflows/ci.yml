@@ -45,6 +45,17 @@ jobs:
       - name: Initialize CI database
         run: npm run db:push
 
+      - name: Validate production database schema
+        env:
+          DATABASE_URL: postgresql://ci_user:ci_password@localhost:5432/postr_ci
+          DIRECT_URL: postgresql://ci_user:ci_password@localhost:5432/postr_ci
+        run: |
+          npm run db:schemas:check
+          npm run db:postgres:validate
+
+      - name: Audit dependencies
+        run: npm audit --audit-level=moderate
+
       - name: Lint
         run: npm run lint
 

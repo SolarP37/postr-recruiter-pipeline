@@ -131,7 +131,9 @@ Use the unescaped value in Vercel’s environment-variable UI.
 1. Import the owner-approved GitHub repository.
 2. Configure the database, private Blob store, and other environment variables
    for the **Preview** environment only.
-3. Use the standard Next.js build command: `npm run build`.
+3. Use the repository Vercel configuration, which runs
+   `npm run build:postgres` so Prisma generates a PostgreSQL client before the
+   Next.js build.
 4. Deploy a preview first.
 5. Test login, suppression, capture, review, draft creation, and referral
    tracking with fixture data.
