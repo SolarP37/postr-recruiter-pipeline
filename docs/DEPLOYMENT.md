@@ -55,6 +55,11 @@ storage. Before public deployment:
    Never run this command against production from an unreviewed branch.
 9. Back up the database and test restore procedures.
 
+Use the detailed rehearsal, cutover, validation, and rollback procedure in
+[`POSTGRESQL_MIGRATION_RUNBOOK.md`](POSTGRESQL_MIGRATION_RUNBOOK.md). The
+repository deliberately does not automate copying personal data between
+databases.
+
 Do not create paid cloud resources automatically.
 
 ## 3. Private screenshot storage

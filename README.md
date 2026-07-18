@@ -74,5 +74,6 @@ mock integrations and CI-only placeholder credentials.
 
 See [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md) for the staged
 delivery plan and [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for external setup
-and production readiness. Remaining owner-controlled work is tracked in
-[docs/BACKLOG.md](docs/BACKLOG.md).
+and production readiness. The PostgreSQL rehearsal and rollback procedure is in
+[docs/POSTGRESQL_MIGRATION_RUNBOOK.md](docs/POSTGRESQL_MIGRATION_RUNBOOK.md).
+Remaining owner-controlled work is tracked in [docs/BACKLOG.md](docs/BACKLOG.md).

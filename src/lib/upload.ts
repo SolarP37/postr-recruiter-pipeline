@@ -6,6 +6,10 @@ export const ALLOWED_MIME_TYPES = [
 ] as const;
 export type AllowedMimeType = (typeof ALLOWED_MIME_TYPES)[number];
 
+export function isAllowedMimeType(value: string): value is AllowedMimeType {
+  return ALLOWED_MIME_TYPES.includes(value as AllowedMimeType);
+}
+
 export function detectedMimeType(bytes: Uint8Array): string | null {
   if (
     bytes.length >= 8 &&
@@ -45,7 +49,10 @@ export function validateUpload(file: {
   if (file.size > MAX_UPLOAD_BYTES) {
     return { valid: false, error: "Images must be 4 MB or smaller." };
   }
-  if (!ALLOWED_MIME_TYPES.includes(file.type as AllowedMimeType)) {
+  if (file.size !== file.bytes.byteLength) {
+    return { valid: false, error: "The uploaded image is incomplete." };
+  }
+  if (!isAllowedMimeType(file.type)) {
     return { valid: false, error: "Only PNG, JPEG, and WebP images are accepted." };
   }
   const detected = detectedMimeType(file.bytes);

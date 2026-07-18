@@ -16,8 +16,10 @@ Acceptance criteria:
 - Confirm the GitHub Actions `Verify` job passes.
 - Review and merge only after the full diff is approved.
 
-Current blocker: GitHub CLI is not authenticated, and the connected GitHub app
-does not have issue-write access.
+Current blocker: GitHub CLI authentication reached GitHub's OAuth authorization
+screen, which requested repository and workflow permissions. Those new account
+permissions were denied under the autonomous-work guardrails. An owner must
+explicitly authorize GitHub CLI before the branch can be pushed.
 
 ## Preview infrastructure
 
@@ -77,6 +79,21 @@ Acceptance criteria:
 
 Current blocker: owner-controlled Google Cloud access and OAuth approval are
 required.
+
+### Make Gmail delivery crash-safe and reconcilable
+
+Acceptance criteria:
+
+- Add a durable send-attempt state before calling Gmail.
+- Prevent concurrent or repeated sends for the same approved message.
+- Record the Gmail message ID returned by a successful send.
+- Reconcile ambiguous network failures without automatically sending again.
+- Add tests for concurrency, Gmail success with database failure, Gmail failure
+  before delivery, and retry behavior.
+
+Current blocker: this changes the production delivery state model and requires
+a reviewed database migration plus an owner decision about ambiguous-send
+reconciliation. Until completed, keep Gmail in draft-only/manual-send mode.
 
 ### Complete production acceptance and compliance review
 

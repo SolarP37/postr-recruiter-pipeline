@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { requireApiSession } from "@/lib/api-auth";
 import { assetStorageForReference } from "@/lib/asset-storage";
 import { db } from "@/lib/db";
+import { isAllowedMimeType } from "@/lib/upload";
 
 export async function GET(_request: Request, context: { params: Promise<{ prospectId: string }> }) {
   const unauthorized = await requireApiSession();
@@ -14,10 +15,19 @@ export async function GET(_request: Request, context: { params: Promise<{ prospe
     if (!stored) {
       return NextResponse.json({ error: "Asset is unavailable." }, { status: 404 });
     }
+    const contentType = isAllowedMimeType(stored.contentType)
+      ? stored.contentType
+      : isAllowedMimeType(asset.mimeType)
+        ? asset.mimeType
+        : null;
+    if (!contentType) {
+      return NextResponse.json({ error: "Asset is unavailable." }, { status: 404 });
+    }
     return new Response(stored.body, {
       headers: {
-        "content-type": stored.contentType || asset.mimeType,
+        "content-type": contentType,
         "cache-control": "private, no-store",
+        "content-security-policy": "sandbox",
         "x-content-type-options": "nosniff",
       },
     });

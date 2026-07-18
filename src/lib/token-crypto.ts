@@ -1,10 +1,17 @@
-import { createCipheriv, createDecipheriv, createHash, randomBytes } from "node:crypto";
+import { createCipheriv, createDecipheriv, randomBytes } from "node:crypto";
 
 function encryptionKey(): Buffer {
-  const configured = process.env.TOKEN_ENCRYPTION_KEY;
-  if (!configured) throw new Error("TOKEN_ENCRYPTION_KEY is not configured.");
+  const configured = process.env.TOKEN_ENCRYPTION_KEY?.trim();
+  if (!configured) {
+    throw new Error("TOKEN_ENCRYPTION_KEY is not configured.");
+  }
   const decoded = Buffer.from(configured, "base64");
-  return decoded.length === 32 ? decoded : createHash("sha256").update(configured).digest();
+  if (decoded.length !== 32 || decoded.toString("base64") !== configured) {
+    throw new Error(
+      "TOKEN_ENCRYPTION_KEY must be exactly 32 random bytes encoded as base64.",
+    );
+  }
+  return decoded;
 }
 
 export function encryptToken(value: string): string {
