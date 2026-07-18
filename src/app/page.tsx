@@ -1,47 +1,61 @@
+import Link from "next/link";
+
+const recruiterLink = process.env.POSTR_RECRUITER_LINK || "/creators";
+
 export default function Home() {
   return (
-    <main className="flex min-h-screen items-center justify-center px-6 py-16">
-      <section className="w-full max-w-4xl overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-2xl shadow-slate-200/70">
-        <div className="grid gap-10 p-8 sm:p-12 lg:grid-cols-[1.3fr_0.7fr] lg:p-16">
-          <div>
-            <p className="mb-6 inline-flex rounded-full bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700">
-              Milestone 1 ready
-            </p>
-            <h1 className="max-w-2xl text-4xl font-semibold tracking-tight text-slate-950 sm:text-6xl">
-              Postr Recruiter Pipeline
-            </h1>
-            <p className="mt-6 max-w-xl text-lg leading-8 text-slate-600">
-              A human-approved workflow for capturing public creator contacts,
-              reviewing prospects, preparing Gmail drafts, and tracking
-              referrals.
-            </p>
-            <p className="mt-8 text-sm leading-6 text-slate-500">
-              No outreach is sent automatically. Every prospect and message
-              requires human approval.
-            </p>
-          </div>
-          <div className="rounded-3xl bg-slate-950 p-7 text-white">
-            <p className="text-sm font-medium text-blue-300">Foundation status</p>
-            <ul className="mt-6 space-y-4 text-sm text-slate-200">
-              {[
-                "Next.js App Router",
-                "TypeScript",
-                "Tailwind CSS",
-                "Environment template",
-                "Mock-first architecture",
-              ].map((item) => (
-                <li key={item} className="flex items-center gap-3">
-                  <span
-                    aria-hidden="true"
-                    className="h-2 w-2 rounded-full bg-emerald-400"
-                  />
-                  {item}
-                </li>
-              ))}
-            </ul>
+    <main>
+      <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
+        <Link href="/" className="text-lg font-bold text-slate-950">Postr Recruiter</Link>
+        <div className="flex items-center gap-5 text-sm font-medium text-slate-600">
+          <Link href="/creators">Creators</Link>
+          <Link href="/brands">Brands</Link>
+          <Link href="/login" className="rounded-full bg-slate-950 px-5 py-2.5 text-white">Recruiter login</Link>
+        </div>
+      </nav>
+      <section className="mx-auto grid min-h-[72vh] max-w-6xl items-center gap-12 px-6 py-16 lg:grid-cols-[1.1fr_0.9fr]">
+        <div>
+          <p className="eyebrow">Creator partnerships, handled honestly</p>
+          <h1 className="mt-6 max-w-3xl text-5xl font-semibold tracking-tight text-slate-950 sm:text-7xl">
+            Find paid creator opportunities through Postr.
+          </h1>
+          <p className="mt-7 max-w-2xl text-xl leading-9 text-slate-600">
+            I help creators and brands connect through Postr. Creators can explore
+            potential paid collaborations, and brands can find people to produce
+            authentic content.
+          </p>
+          <div className="mt-10 flex flex-wrap gap-4">
+            <a className="button-primary" href={recruiterLink}>Join as a Creator</a>
+            <a className="button-secondary" href={recruiterLink}>Join as a Brand</a>
           </div>
         </div>
+        <div className="card relative overflow-hidden bg-slate-950 p-10 text-white">
+          <div className="absolute -right-16 -top-16 h-52 w-52 rounded-full bg-blue-500/30 blur-3xl" />
+          <p className="text-sm font-semibold text-blue-300">How it works</p>
+          <ol className="mt-8 space-y-7">
+            {[
+              ["01", "Explore", "See whether Postr fits your collaboration goals."],
+              ["02", "Connect", "Join using the recruiter invitation when you are ready."],
+              ["03", "Create", "Build authentic brand partnerships without earnings promises."],
+            ].map(([number, title, copy]) => (
+              <li key={number} className="flex gap-5">
+                <span className="text-sm font-bold text-blue-300">{number}</span>
+                <div><h2 className="font-semibold">{title}</h2><p className="mt-1 text-sm leading-6 text-slate-400">{copy}</p></div>
+              </li>
+            ))}
+          </ol>
+        </div>
       </section>
+      <footer className="border-t border-slate-200 bg-white/60">
+        <div className="mx-auto flex max-w-6xl flex-col gap-4 px-6 py-8 text-sm text-slate-600 sm:flex-row sm:items-center sm:justify-between">
+          <p className="max-w-3xl">
+            I may earn recruiter commission from qualifying activity completed
+            through my referral link. Joining through the link does not add a fee
+            for the creator or brand.
+          </p>
+          <div className="flex gap-4"><Link href="/privacy">Privacy</Link><Link href="/opt-out">Opt out</Link></div>
+        </div>
+      </footer>
     </main>
   );
 }

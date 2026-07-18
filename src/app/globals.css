@@ -20,3 +20,65 @@ body {
     radial-gradient(circle at top left, rgb(219 234 254 / 0.85), transparent 35%),
     radial-gradient(circle at bottom right, rgb(224 231 255 / 0.8), transparent 35%);
 }
+
+button, a, input, select, textarea {
+  transition: color 150ms ease, background-color 150ms ease, border-color 150ms ease, opacity 150ms ease;
+}
+
+.card {
+  border: 1px solid rgb(226 232 240);
+  border-radius: 1.5rem;
+  background: white;
+  box-shadow: 0 24px 70px rgb(15 23 42 / 0.08);
+}
+
+.eyebrow {
+  display: inline-flex;
+  border-radius: 9999px;
+  background: rgb(239 246 255);
+  padding: 0.5rem 1rem;
+  color: rgb(29 78 216);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.button-primary, .button-secondary {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  padding: 0.75rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.button-primary { background: rgb(15 23 42); color: white; }
+.button-primary:hover { background: rgb(30 41 59); }
+.button-secondary { border: 1px solid rgb(203 213 225); background: white; color: rgb(15 23 42); }
+.button-secondary:hover { border-color: rgb(100 116 139); }
+.button-danger { color: rgb(190 18 60); border-color: rgb(254 205 211); }
+
+.field-label { display: grid; gap: 0.5rem; color: rgb(51 65 85); font-size: 0.875rem; font-weight: 600; }
+.field {
+  width: 100%;
+  border: 1px solid rgb(203 213 225);
+  border-radius: 0.75rem;
+  background: white;
+  padding: 0.75rem 0.875rem;
+  color: rgb(15 23 42);
+  font-weight: 400;
+  outline: none;
+}
+.field:focus { border-color: rgb(37 99 235); box-shadow: 0 0 0 3px rgb(219 234 254); }
+.notice { border-radius: 0.75rem; background: rgb(239 246 255); padding: 0.875rem 1rem; color: rgb(30 64 175); font-size: 0.875rem; }
+.text-link { display: block; margin-top: 1.5rem; color: rgb(37 99 235); font-size: 0.875rem; font-weight: 600; }
+.public-page { margin: 0 auto; min-height: 100vh; max-width: 56rem; padding: 7rem 1.5rem; }
+.public-page h1 { margin-top: 1.5rem; max-width: 48rem; font-size: clamp(2.5rem, 7vw, 4.5rem); font-weight: 650; line-height: 1.04; letter-spacing: -0.04em; color: rgb(15 23 42); }
+.public-page > p:not(.eyebrow) { margin-top: 1.5rem; max-width: 44rem; font-size: 1.125rem; line-height: 1.8; color: rgb(71 85 105); }
+.public-page .disclosure { margin-top: 2rem; border-left: 3px solid rgb(59 130 246); padding-left: 1rem; font-size: 0.875rem; }
+.page-shell { margin: 0 auto; max-width: 90rem; padding: 2rem 1.25rem 4rem; }
+.page-title { font-size: 2rem; font-weight: 650; letter-spacing: -0.03em; color: rgb(15 23 42); }
+.page-copy { margin-top: 0.5rem; color: rgb(100 116 139); }
