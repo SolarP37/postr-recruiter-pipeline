@@ -125,6 +125,10 @@ Use the unescaped value in Vercel’s environment-variable UI.
 
 ## Production readiness checklist
 
+The authenticated Settings page performs a non-secret preflight against these
+requirements. It reports variable names and corrective actions without
+displaying configured values.
+
 - [ ] Demo authentication is disabled in production.
 - [ ] Strong password hash and random auth/token keys are configured.
 - [ ] Persistent Postgres database and backups are configured.
