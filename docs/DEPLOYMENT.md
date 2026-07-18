@@ -22,13 +22,23 @@ Replace all development placeholders before using real prospect data.
 SQLite is appropriate for the local MVP but not for durable Vercel serverless
 storage. Before public deployment:
 
-1. Create an owner-approved Supabase Postgres project or another supported
+1. Select the owner-controlled Supabase Postgres project or another supported
    persistent Postgres database.
 2. Change the Prisma provider from `sqlite` to `postgresql` on a deployment
    branch.
-3. Set the production `DATABASE_URL` in the deployment platform.
-4. Generate and review the first production migration.
-5. Back up the database and test restore procedures.
+3. In Supabase Dashboard, open the project and select **Connect**.
+4. Set the transaction-pooler connection as `DATABASE_URL` and the direct
+   connection as `DIRECT_URL`. These values contain credentials and must be
+   entered only in the ignored local `.env.local` file or the deployment
+   provider's protected environment-variable UI. Never paste them into chat.
+5. On Vercel, scope both values to **Preview** while validating the deployment.
+   Do not add them to Production until the owner separately approves a
+   production release.
+6. The application does not use Supabase Auth or the Supabase JavaScript
+   client. Do not configure an anon key, publishable key, service-role key, or
+   Supabase Auth redirects for this deployment.
+7. Generate and review the first production migration.
+8. Back up the database and test restore procedures.
 
 Do not create paid cloud resources automatically.
 
@@ -42,7 +52,9 @@ In Google Cloud Console:
 4. Create a Web application OAuth client.
 5. Add the exact redirect URIs:
    - Local: `http://localhost:3000/api/auth/google/callback`
-   - Production: `https://YOUR_DOMAIN/api/auth/google/callback`
+   - Preview: `https://YOUR_VERCEL_PREVIEW_DOMAIN/api/auth/google/callback`
+   - Production (only after separate approval):
+     `https://YOUR_PRODUCTION_DOMAIN/api/auth/google/callback`
 6. Place the client ID and secret in local or deployment environment variables.
 
 The application requests only `gmail.compose`. It creates a Gmail draft after
@@ -54,6 +66,7 @@ Gmail.
 
 - `NEXT_PUBLIC_APP_URL`
 - `DATABASE_URL`
+- `DIRECT_URL`
 - `AUTH_MODE=password`
 - `ADMIN_EMAIL`
 - `ADMIN_PASSWORD_HASH`
@@ -81,12 +94,14 @@ Use the unescaped value in Vercel’s environment-variable UI.
 ## 6. Vercel
 
 1. Import the owner-approved GitHub repository.
-2. Configure the production database and all environment variables.
+2. Configure the database and other environment variables for the **Preview**
+   environment only.
 3. Use the standard Next.js build command: `npm run build`.
 4. Deploy a preview first.
 5. Test login, suppression, capture, review, draft creation, and referral
    tracking with fixture data.
-6. Obtain owner approval before promoting the deployment publicly.
+6. Obtain owner approval before adding Production-scoped secrets or promoting
+   the deployment publicly.
 
 ## Production readiness checklist
 
