@@ -2,8 +2,10 @@ import { NextResponse } from "next/server";
 import { requireApiSession } from "@/lib/api-auth";
 import { audit } from "@/lib/audit";
 import { db } from "@/lib/db";
+import { requireSameOrigin } from "@/lib/request-security";
 
 export async function POST(request: Request) {
+  const crossSite = requireSameOrigin(request); if (crossSite) return crossSite;
   const unauthorized = await requireApiSession(); if (unauthorized) return unauthorized;
   await db.oAuthToken.deleteMany({ where: { provider: "google" } });
   await audit("GMAIL_DISCONNECTED", "OAuthToken", "google");

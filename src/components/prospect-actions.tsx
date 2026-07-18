@@ -3,10 +3,11 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-export function ProspectActions({ id, email, displayName, notes }: { id: string; email: string | null; displayName: string | null; notes: string | null }) {
+export function ProspectActions({ id, email, displayName, notes, status }: { id: string; email: string | null; displayName: string | null; notes: string | null; status: string }) {
   const router = useRouter();
   const [message, setMessage] = useState("");
   const [editing, setEditing] = useState(false);
+  const reviewable = ["CAPTURED", "NEEDS_REVIEW", "REJECTED", "NO_EMAIL_FOUND"].includes(status);
   async function action(actionName: string, extra: Record<string, unknown> = {}) {
     const response = await fetch(`/api/prospects/${id}`, {
       method: "PATCH",
@@ -32,10 +33,10 @@ export function ProspectActions({ id, email, displayName, notes }: { id: string;
         </form>
       ) : (
         <div className="flex flex-wrap gap-2">
-          <button className="button-primary" onClick={() => action("approve")}>Approve</button>
-          <button className="button-secondary" onClick={() => setEditing(true)}>Edit</button>
-          <button className="button-secondary" onClick={() => action("reject")}>Reject</button>
-          <button className="button-secondary" onClick={() => action("no_email")}>Mark no email</button>
+          {reviewable && <button className="button-primary" onClick={() => action("approve")}>Approve</button>}
+          {reviewable && <button className="button-secondary" onClick={() => setEditing(true)}>Edit</button>}
+          {reviewable && <button className="button-secondary" onClick={() => action("reject")}>Reject</button>}
+          {reviewable && <button className="button-secondary" onClick={() => action("no_email")}>Mark no email</button>}
           <button className="button-secondary button-danger" disabled={!email} onClick={() => action("suppress")}>Suppress</button>
         </div>
       )}

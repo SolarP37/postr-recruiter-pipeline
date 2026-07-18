@@ -3,10 +3,14 @@ import { z } from "zod";
 import { audit } from "@/lib/audit";
 import { db } from "@/lib/db";
 import { normalizeEmail } from "@/lib/email";
+import { privacyHash } from "@/lib/privacy";
+import { requireSameOrigin } from "@/lib/request-security";
 
 const schema = z.object({ email: z.string().email().max(254) });
 
 export async function POST(request: Request) {
+  const crossSite = requireSameOrigin(request);
+  if (crossSite) return crossSite;
   const parsed = schema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Enter a valid email address." }, { status: 400 });
   const normalizedEmail = normalizeEmail(parsed.data.email);
@@ -14,6 +18,8 @@ export async function POST(request: Request) {
     db.suppressionEntry.upsert({ where: { normalizedEmail }, create: { normalizedEmail, reason: "Public opt-out request" }, update: { reason: "Public opt-out request" } }),
     db.prospect.updateMany({ where: { normalizedEmail }, data: { doNotContact: true, status: "OPTED_OUT" } }),
   ]);
-  await audit("PUBLIC_OPT_OUT", "SuppressionEntry", undefined, { normalizedEmail });
+  await audit("PUBLIC_OPT_OUT", "SuppressionEntry", undefined, {
+    emailHash: privacyHash(normalizedEmail),
+  });
   return NextResponse.json({ ok: true });
 }

@@ -1,9 +1,17 @@
 param(
-  [string]$BaseUrl = "http://127.0.0.1:3000",
+  [string]$BaseUrl = "http://localhost:3000",
   [string]$FixturePath = "storage\smoke-fixture.png"
 )
 
 $ErrorActionPreference = "Stop"
+
+$crossSiteGuarded = $false
+try {
+  Invoke-WebRequest -UseBasicParsing -Uri "$BaseUrl/api/auth/login" -Method POST -Headers @{ Origin = "https://attacker.invalid" } -ContentType "application/json" -Body '{"email":"demo@postr.local","password":"postr-demo"}' | Out-Null
+} catch {
+  $crossSiteGuarded = $_.Exception.Response.StatusCode.value__ -eq 403
+}
+if (-not $crossSiteGuarded) { throw "Cross-site mutation guard did not reject the request." }
 
 function Invoke-Json {
   param(
@@ -17,12 +25,13 @@ function Invoke-Json {
     Method = $Method
     ContentType = "application/json"
   }
+  if ($Method -ne "GET") { $parameters.Headers = @{ Origin = $BaseUrl } }
   if ($Cookie) { $parameters.WebSession = $script:ApiSession }
   if ($null -ne $Body) { $parameters.Body = ($Body | ConvertTo-Json -Compress) }
   Invoke-RestMethod @parameters
 }
 
-$loginResponse = Invoke-WebRequest -UseBasicParsing -Uri "$BaseUrl/api/auth/login" -Method POST -ContentType "application/json" -Body '{"email":"demo@postr.local","password":"postr-demo"}'
+$loginResponse = Invoke-WebRequest -UseBasicParsing -Uri "$BaseUrl/api/auth/login" -Method POST -Headers @{ Origin = $BaseUrl } -ContentType "application/json" -Body '{"email":"demo@postr.local","password":"postr-demo"}'
 $login = $loginResponse.Content | ConvertFrom-Json
 if (-not $login.ok) { throw "Demo login failed." }
 
@@ -31,11 +40,11 @@ $sessionCookie = if ($setCookie -match "postr_session=([^;]+)") { $Matches[1] } 
 if (-not $sessionCookie) { throw "Session cookie was not created." }
 $cookieHeader = "postr_session=$sessionCookie"
 $script:ApiSession = New-Object Microsoft.PowerShell.Commands.WebRequestSession
-$apiCookie = New-Object System.Net.Cookie("postr_session", $sessionCookie, "/", "127.0.0.1")
+$apiCookie = New-Object System.Net.Cookie("postr_session", $sessionCookie, "/", ([Uri]$BaseUrl).Host)
 $script:ApiSession.Cookies.Add([Uri]$BaseUrl, $apiCookie)
 
 $fixture = (Resolve-Path -LiteralPath $FixturePath).Path
-$captureJson = & curl.exe -s -H "Cookie: $cookieHeader" -F "platform=instagram" -F "sourceUrl=https://www.instagram.com/mock_creator/" -F "campaign=Automated smoke test" -F "screenshot=@$fixture;type=image/png" "$BaseUrl/api/capture"
+$captureJson = & curl.exe -s -H "Cookie: $cookieHeader" -H "Origin: $BaseUrl" -F "platform=instagram" -F "sourceUrl=https://www.instagram.com/mock_creator/" -F "campaign=Automated smoke test" -F "screenshot=@$fixture;type=image/png" "$BaseUrl/api/capture"
 $capture = $captureJson | ConvertFrom-Json
 if ($capture.created -lt 1) { throw "Capture did not create a prospect: $captureJson" }
 $prospectId = $capture.prospectIds[0]
@@ -70,6 +79,7 @@ try {
 if (-not $unauthorizedGuarded) { throw "Protected API did not reject an unauthenticated request." }
 
 [pscustomobject]@{
+  crossSiteGuard = "passed"
   login = "passed"
   capture = "passed"
   prospectApproval = "passed"

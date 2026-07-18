@@ -98,6 +98,9 @@ Use the unescaped value in Vercel’s environment-variable UI.
 - [ ] Google OAuth consent and redirects are verified.
 - [ ] OpenAI data handling is reviewed before real screenshot processing.
 - [ ] Suppression and duplicate guards pass in production.
+- [ ] `NEXT_PUBLIC_APP_URL` exactly matches the production origin so mutation
+      protection accepts legitimate requests.
+- [ ] Login throttling and lifecycle-transition tests pass.
 - [ ] No secrets, uploads, local database files, or OAuth tokens are tracked.
 - [ ] Preview deployment passes the full workflow.
 - [ ] Owner explicitly approves public production deployment.

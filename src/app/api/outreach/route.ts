@@ -5,10 +5,13 @@ import { audit } from "@/lib/audit";
 import { db } from "@/lib/db";
 import { createCreatorOutreach } from "@/lib/outreach";
 import { canCreateOutreach } from "@/lib/prospect-guards";
+import { requireSameOrigin } from "@/lib/request-security";
 
 const schema = z.object({ prospectId: z.string().min(1) });
 
 export async function POST(request: Request) {
+  const crossSite = requireSameOrigin(request);
+  if (crossSite) return crossSite;
   const unauthorized = await requireApiSession();
   if (unauthorized) return unauthorized;
   const parsed = schema.safeParse(await request.json().catch(() => null));

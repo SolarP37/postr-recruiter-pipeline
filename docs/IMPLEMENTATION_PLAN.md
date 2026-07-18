@@ -40,3 +40,13 @@
 
 Deployment and external integrations pause at credentials or publishing actions
 that require owner approval.
+
+## Security hardening — complete
+
+- [x] Enforce same-origin checks on state-changing routes.
+- [x] Throttle repeated failed recruiter login attempts.
+- [x] Prevent review and tracking status regressions.
+- [x] Persist captures atomically and clean up files after provider/database
+  failures.
+- [x] Hash opt-out identifiers in audit metadata.
+- [x] Hide demo credentials whenever demo mode is not active.

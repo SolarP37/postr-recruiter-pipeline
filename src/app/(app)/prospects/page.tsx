@@ -36,7 +36,7 @@ export default async function ProspectsPage() {
               <div className="sm:col-span-2"><dt className="font-semibold text-slate-500">Visible evidence</dt><dd className="mt-1 rounded-xl bg-slate-50 p-3">{prospect.visibleEmailEvidence || "No evidence recorded"}</dd></div>
               {prospect.screenshotPath && <div><dt className="font-semibold text-slate-500">Screenshot</dt><dd className="mt-1"><a className="text-blue-600" href={`/api/assets/${prospect.id}`} target="_blank">View protected asset</a></dd></div>}
             </dl>
-            <ProspectActions id={prospect.id} email={prospect.email} displayName={prospect.displayName} notes={prospect.notes} />
+            <ProspectActions id={prospect.id} email={prospect.email} displayName={prospect.displayName} notes={prospect.notes} status={prospect.status} />
             <TrackingActions prospectId={prospect.id} status={prospect.status} />
           </article>
         ))}

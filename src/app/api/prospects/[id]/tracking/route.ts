@@ -4,10 +4,14 @@ import { requireApiSession } from "@/lib/api-auth";
 import { audit } from "@/lib/audit";
 import { db } from "@/lib/db";
 import { EnvironmentPostrAdapter } from "@/lib/postr";
+import { canApplyTrackingAction } from "@/lib/lifecycle";
+import { requireSameOrigin } from "@/lib/request-security";
 
 const schema = z.object({ action: z.enum(["replied", "interested", "copy_referral", "referral_sent", "joined"]) });
 
 export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
+  const crossSite = requireSameOrigin(request);
+  if (crossSite) return crossSite;
   const unauthorized = await requireApiSession();
   if (unauthorized) return unauthorized;
   const parsed = schema.safeParse(await request.json().catch(() => null));
@@ -16,6 +20,10 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   const prospect = await db.prospect.findUnique({ where: { id } });
   if (!prospect) return NextResponse.json({ error: "Prospect not found." }, { status: 404 });
   if (prospect.doNotContact) return NextResponse.json({ error: "Suppressed prospect cannot advance." }, { status: 409 });
+  const transition = canApplyTrackingAction(prospect.status, parsed.data.action);
+  if (!transition.allowed) {
+    return NextResponse.json({ error: transition.reason }, { status: 409 });
+  }
   const now = new Date();
   let data = {};
   let referralLink: string | undefined;

@@ -4,6 +4,8 @@ import { requireApiSession } from "@/lib/api-auth";
 import { audit } from "@/lib/audit";
 import { db } from "@/lib/db";
 import { isValidEmail, normalizeEmail } from "@/lib/email";
+import { canApplyReviewAction } from "@/lib/lifecycle";
+import { requireSameOrigin } from "@/lib/request-security";
 
 const requestSchema = z.object({
   action: z.enum(["approve", "edit", "reject", "no_email", "suppress"]),
@@ -13,6 +15,8 @@ const requestSchema = z.object({
 });
 
 export async function PATCH(request: Request, context: { params: Promise<{ id: string }> }) {
+  const crossSite = requireSameOrigin(request);
+  if (crossSite) return crossSite;
   const unauthorized = await requireApiSession();
   if (unauthorized) return unauthorized;
   const { id } = await context.params;
@@ -20,6 +24,10 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
   if (!parsed.success) return NextResponse.json({ error: "Invalid review action." }, { status: 400 });
   const prospect = await db.prospect.findUnique({ where: { id } });
   if (!prospect) return NextResponse.json({ error: "Prospect not found." }, { status: 404 });
+  const transition = canApplyReviewAction(prospect.status, parsed.data.action);
+  if (!transition.allowed) {
+    return NextResponse.json({ error: transition.reason }, { status: 409 });
+  }
 
   if (parsed.data.action === "approve") {
     if (!prospect.email || !prospect.normalizedEmail) return NextResponse.json({ error: "A valid visible email is required." }, { status: 409 });

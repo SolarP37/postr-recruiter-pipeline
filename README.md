@@ -14,6 +14,8 @@ Tailwind CSS, and a mock-first integration architecture.
 - Validated private screenshot storage for PNG, JPEG, and WebP files
 - Mock and OpenAI vision providers plus a guarded Grok placeholder
 - Duplicate, suppression, review, draft approval, and send guards
+- Same-origin protection, login throttling, and guarded lifecycle transitions
+- Atomic capture persistence with failed-upload cleanup
 - Gmail OAuth, encrypted token storage, draft creation, and confirmed-send endpoints
 - Referral link lifecycle and manual signup tracking
 - Automated unit and end-to-end mock workflow tests
@@ -63,6 +65,9 @@ npm run build
 - `VISION_PROVIDER=mock` makes credential-free development possible.
 - No prospect outreach is sent automatically.
 - Gmail integration will create drafts first and require a separate send action.
+- State-changing API requests must originate from `NEXT_PUBLIC_APP_URL`.
+- Public opt-out audits use one-way email hashes instead of storing addresses in
+  audit metadata.
 
 See [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md) for the staged
 delivery plan and [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for external setup

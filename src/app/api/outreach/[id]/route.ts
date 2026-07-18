@@ -4,10 +4,13 @@ import { requireApiSession } from "@/lib/api-auth";
 import { audit } from "@/lib/audit";
 import { db } from "@/lib/db";
 import { canSendApprovedDraft } from "@/lib/prospect-guards";
+import { requireSameOrigin } from "@/lib/request-security";
 
 const schema = z.object({ action: z.enum(["approve", "reject", "mark_sent"]) });
 
 export async function PATCH(request: Request, context: { params: Promise<{ id: string }> }) {
+  const crossSite = requireSameOrigin(request);
+  if (crossSite) return crossSite;
   const unauthorized = await requireApiSession();
   if (unauthorized) return unauthorized;
   const { id } = await context.params;
