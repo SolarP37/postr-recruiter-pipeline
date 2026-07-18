@@ -50,7 +50,7 @@ export function CaptureForm() {
         </label>
         <label className="mt-5 grid cursor-pointer place-items-center rounded-2xl border-2 border-dashed border-slate-300 px-6 py-12 text-center hover:border-blue-400">
           <span className="font-semibold text-slate-700">Drop or choose a screenshot</span>
-          <span className="mt-2 text-sm text-slate-500">PNG, JPEG, or WebP · maximum 8 MB</span>
+          <span className="mt-2 text-sm text-slate-500">PNG, JPEG, or WebP · maximum 4 MB</span>
           <input className="sr-only" type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => {
             const selected = event.target.files?.[0] || null;
             setFile(selected);

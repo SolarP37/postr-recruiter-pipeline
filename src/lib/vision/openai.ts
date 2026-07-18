@@ -1,5 +1,3 @@
-import { readFile } from "node:fs/promises";
-import path from "node:path";
 import OpenAI from "openai";
 import type { VisionProvider } from "@/lib/vision/provider";
 import { validateExtraction } from "@/lib/vision/schema";
@@ -10,20 +8,15 @@ Return JSON with emailFound, emails (email, visibleContext, confidence), display
 The visibleContext must quote the nearby evidence shown in the image.
 If no email is visible, return emailFound false and an empty emails array.`;
 
-function imageMimeType(imagePath: string): string {
-  const extension = path.extname(imagePath).toLowerCase();
-  if (extension === ".png") return "image/png";
-  if (extension === ".webp") return "image/webp";
-  return "image/jpeg";
-}
-
 export class OpenAIVisionProvider implements VisionProvider {
-  async extractPublicContactInformation(imagePath: string) {
+  async extractPublicContactInformation(image: {
+    bytes: Uint8Array;
+    mimeType: "image/png" | "image/jpeg" | "image/webp";
+  }) {
     if (!process.env.OPENAI_API_KEY) {
       throw new Error("OPENAI_API_KEY is not configured.");
     }
-    const bytes = await readFile(imagePath);
-    const dataUrl = `data:${imageMimeType(imagePath)};base64,${bytes.toString("base64")}`;
+    const dataUrl = `data:${image.mimeType};base64,${Buffer.from(image.bytes).toString("base64")}`;
     const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
     const response = await client.responses.create({
       model: process.env.OPENAI_VISION_MODEL || "gpt-5.4-nano",

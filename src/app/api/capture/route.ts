@@ -1,11 +1,11 @@
-import { unlink, writeFile } from "node:fs/promises";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireApiSession } from "@/lib/api-auth";
+import { configuredAssetStorage } from "@/lib/asset-storage";
 import { db } from "@/lib/db";
 import { normalizeEmail } from "@/lib/email";
 import { requireSameOrigin } from "@/lib/request-security";
-import { randomizedUploadPath, validateUpload } from "@/lib/upload";
+import { validateUpload } from "@/lib/upload";
 import { getVisionProvider } from "@/lib/vision";
 
 const metadataSchema = z.object({
@@ -19,7 +19,8 @@ export async function POST(request: Request) {
   if (crossSite) return crossSite;
   const unauthorized = await requireApiSession();
   if (unauthorized) return unauthorized;
-  let stored: ReturnType<typeof randomizedUploadPath> | null = null;
+  let storedReference: string | null = null;
+  let storage: ReturnType<typeof configuredAssetStorage> | null = null;
   let committed = false;
   try {
     const form = await request.formData();
@@ -34,9 +35,15 @@ export async function POST(request: Request) {
     const bytes = new Uint8Array(await file.arrayBuffer());
     const validation = validateUpload({ size: file.size, type: file.type, bytes });
     if (!validation.valid) return NextResponse.json({ error: validation.error }, { status: 400 });
-    stored = randomizedUploadPath(validation.mimeType);
-    await writeFile(stored.absolutePath, bytes, { flag: "wx" });
-    const extraction = await getVisionProvider().extractPublicContactInformation(stored.absolutePath);
+    const extraction = await getVisionProvider().extractPublicContactInformation({
+      bytes,
+      mimeType: validation.mimeType,
+    });
+    storage = configuredAssetStorage();
+    const assetReference = (
+      await storage.store({ bytes, mimeType: validation.mimeType })
+    ).reference;
+    storedReference = assetReference;
     const extractedItems = extraction.emails.length ? extraction.emails : [null];
     const preparedItems = await Promise.all(extractedItems.map(async (item) => {
       const normalizedEmail = item ? normalizeEmail(item.email) : null;
@@ -57,7 +64,7 @@ export async function POST(request: Request) {
             sourcePlatform: metadata.data.platform,
             sourceUrl: metadata.data.sourceUrl || null,
             campaign: metadata.data.campaign || null,
-            screenshotPath: stored!.relativePath,
+            screenshotPath: assetReference,
             visibleEmailEvidence: item?.visibleContext || null,
             extractionConfidence: item?.confidence || null,
             notes: extraction.notes.join("\n") || null,
@@ -65,7 +72,7 @@ export async function POST(request: Request) {
             doNotContact: suppressed,
             sourceAssets: {
               create: {
-                filePath: stored!.relativePath,
+                filePath: assetReference,
                 mimeType: validation.mimeType,
                 extractedText: item?.visibleContext || extraction.notes.join("\n") || null,
               },
@@ -90,8 +97,8 @@ export async function POST(request: Request) {
     committed = true;
     return NextResponse.json({ created: prospectIds.length, prospectIds });
   } catch (error) {
-    if (stored && !committed) {
-      await unlink(stored.absolutePath).catch(() => undefined);
+    if (storage && storedReference && !committed) {
+      await storage.remove(storedReference).catch(() => undefined);
     }
     console.error("Capture failed", error);
     const message =

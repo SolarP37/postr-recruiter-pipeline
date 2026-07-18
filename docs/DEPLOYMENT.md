@@ -42,7 +42,25 @@ storage. Before public deployment:
 
 Do not create paid cloud resources automatically.
 
-## 3. Google OAuth and Gmail
+## 3. Private screenshot storage
+
+Local development stores screenshots under `storage/uploads`. Vercel Functions
+do not provide durable local storage, so hosted environments must use a private
+Vercel Blob store:
+
+1. Create a private Blob store from the owner-controlled Vercel project.
+2. Connect it to the Preview environment.
+3. Set `ASSET_STORAGE_PROVIDER=vercel-blob`.
+4. Confirm Vercel supplies `BLOB_READ_WRITE_TOKEN`, or configure the store ID
+   and Vercel OIDC access.
+5. Upload and retrieve a fixture screenshot through the protected asset route.
+
+Never use a public Blob store for prospect screenshots. The application stores
+only private Blob pathnames and serves content through its authenticated API.
+Server uploads are limited to 4 MB to remain below the Vercel Function request
+limit.
+
+## 4. Google OAuth and Gmail
 
 In Google Cloud Console:
 
@@ -62,11 +80,13 @@ prospect and message approval. Sending requires the separate literal
 confirmation `SEND`; the UI intentionally defaults to manual sending from
 Gmail.
 
-## 4. Required production environment
+## 5. Required production environment
 
 - `NEXT_PUBLIC_APP_URL`
 - `DATABASE_URL`
 - `DIRECT_URL`
+- `ASSET_STORAGE_PROVIDER=vercel-blob`
+- `BLOB_READ_WRITE_TOKEN` or Vercel OIDC access to `BLOB_STORE_ID`
 - `AUTH_MODE=password`
 - `ADMIN_EMAIL`
 - `ADMIN_PASSWORD_HASH`
@@ -83,7 +103,7 @@ Gmail.
 When storing a bcrypt hash in a Next.js `.env` file, escape each `$` as `\$`.
 Use the unescaped value in Vercel’s environment-variable UI.
 
-## 5. GitHub
+## 6. GitHub
 
 1. Replace the repository-local placeholder Git author identity.
 2. Review `git status`, the full diff, and test output.
@@ -91,11 +111,11 @@ Use the unescaped value in Vercel’s environment-variable UI.
 4. Push a feature branch, not directly to an unreviewed production branch.
 5. Confirm `.env.local`, database files, OAuth tokens, and uploads are absent.
 
-## 6. Vercel
+## 7. Vercel
 
 1. Import the owner-approved GitHub repository.
-2. Configure the database and other environment variables for the **Preview**
-   environment only.
+2. Configure the database, private Blob store, and other environment variables
+   for the **Preview** environment only.
 3. Use the standard Next.js build command: `npm run build`.
 4. Deploy a preview first.
 5. Test login, suppression, capture, review, draft creation, and referral
@@ -108,6 +128,7 @@ Use the unescaped value in Vercel’s environment-variable UI.
 - [ ] Demo authentication is disabled in production.
 - [ ] Strong password hash and random auth/token keys are configured.
 - [ ] Persistent Postgres database and backups are configured.
+- [ ] Private durable screenshot storage is configured and access-controlled.
 - [ ] Real recruiter link replaces the placeholder.
 - [ ] Privacy and opt-out copy has owner/legal review.
 - [ ] Google OAuth consent and redirects are verified.
