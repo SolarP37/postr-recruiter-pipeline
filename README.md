@@ -58,6 +58,9 @@ npm test
 npm run build
 ```
 
+Pull requests and pushes to `main` run the same checks in GitHub Actions using
+mock integrations and CI-only placeholder credentials.
+
 ## Safety defaults
 
 - `.env.local` and all other secret-bearing environment files are ignored.

@@ -34,7 +34,9 @@
 - [x] Track referral link copies, marked sends, and manually confirmed joins.
 - [x] Complete end-to-end tests in mock mode.
 - [x] Prepare the GitHub, Vercel, OAuth, and environment checklists.
-- [ ] Create the owner-approved GitHub repository and Vercel project.
+- [x] Create the owner-approved GitHub repository.
+- [x] Add GitHub Actions checks for lint, type-check, tests, and production builds.
+- [ ] Create the owner-approved Vercel project.
 - [ ] Configure production environment variables, Google redirect URIs, and the
   production database migration path.
 
