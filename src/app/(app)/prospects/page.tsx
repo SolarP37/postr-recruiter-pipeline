@@ -34,9 +34,21 @@ export default async function ProspectsPage() {
               <div><dt className="font-semibold text-slate-500">Platform</dt><dd className="mt-1">{prospect.sourcePlatform}</dd></div>
               <div><dt className="font-semibold text-slate-500">Source</dt><dd className="mt-1 break-all">{prospect.sourceUrl ? <a className="text-blue-600" href={prospect.sourceUrl} target="_blank" rel="noreferrer">{prospect.sourceUrl}</a> : "Not supplied"}</dd></div>
               <div className="sm:col-span-2"><dt className="font-semibold text-slate-500">Visible evidence</dt><dd className="mt-1 rounded-xl bg-slate-50 p-3">{prospect.visibleEmailEvidence || "No evidence recorded"}</dd></div>
+              <div><dt className="font-semibold text-slate-500">Creator category</dt><dd className="mt-1">{prospect.creatorCategory || "Not extracted"}</dd></div>
+              <div><dt className="font-semibold text-slate-500">Visible bio</dt><dd className="mt-1">{prospect.profileBio || "Not extracted"}</dd></div>
+              <div className="sm:col-span-2"><dt className="font-semibold text-slate-500">Personalization hook</dt><dd className="mt-1 rounded-xl bg-blue-50 p-3 text-blue-950">{prospect.personalizationHook || "No screenshot-supported hook extracted"}</dd></div>
               {prospect.screenshotPath && <div><dt className="font-semibold text-slate-500">Screenshot</dt><dd className="mt-1"><a className="text-blue-600" href={`/api/assets/${prospect.id}`} target="_blank">View protected asset</a></dd></div>}
             </dl>
-            <ProspectActions id={prospect.id} email={prospect.email} displayName={prospect.displayName} notes={prospect.notes} status={prospect.status} />
+            <ProspectActions
+              id={prospect.id}
+              email={prospect.email}
+              displayName={prospect.displayName}
+              profileBio={prospect.profileBio}
+              creatorCategory={prospect.creatorCategory}
+              personalizationHook={prospect.personalizationHook}
+              notes={prospect.notes}
+              status={prospect.status}
+            />
             <TrackingActions prospectId={prospect.id} status={prospect.status} />
           </article>
         ))}

@@ -43,6 +43,9 @@ model Prospect {
   screenshotPath           String?
   visibleEmailEvidence     String?
   extractionConfidence     Float?
+  profileBio               String?
+  creatorCategory          String?
+  personalizationHook      String?
   status                   ProspectStatus    @default(CAPTURED)
   notes                    String?
   doNotContact             Boolean           @default(false)

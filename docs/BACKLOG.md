@@ -66,6 +66,20 @@ infrastructure must exist.
 
 ## External integrations
 
+### Improve phone image compatibility
+
+Acceptance criteria:
+
+- Convert supported HEIC/HEIF phone images to a validated web image before OCR.
+- Resize or compress oversized screenshots locally without uploading the
+  original.
+- Preserve readable email and profile text after conversion.
+- Add browser tests for unsupported, oversized, converted, and compressed files.
+- Keep server-side signature and size validation as the final trust boundary.
+
+The current capture page supports phone-selected PNG, JPEG, and WebP screenshots
+up to 4 MB and rejects invalid files before upload.
+
 ### Configure Google OAuth and Gmail
 
 Acceptance criteria:

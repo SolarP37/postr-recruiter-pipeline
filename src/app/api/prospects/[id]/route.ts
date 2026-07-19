@@ -11,6 +11,9 @@ const requestSchema = z.object({
   action: z.enum(["approve", "edit", "reject", "no_email", "suppress"]),
   email: z.string().optional(),
   displayName: z.string().max(120).nullable().optional(),
+  profileBio: z.string().max(500).nullable().optional(),
+  creatorCategory: z.string().max(120).nullable().optional(),
+  personalizationHook: z.string().max(280).nullable().optional(),
   notes: z.string().max(2000).nullable().optional(),
 });
 
@@ -41,6 +44,9 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     const suppressed = normalizedEmail ? await db.suppressionEntry.findUnique({ where: { normalizedEmail } }) : null;
     await db.prospect.update({ where: { id }, data: {
       email, normalizedEmail, displayName: parsed.data.displayName?.trim() || null,
+      profileBio: parsed.data.profileBio?.trim() || null,
+      creatorCategory: parsed.data.creatorCategory?.trim() || null,
+      personalizationHook: parsed.data.personalizationHook?.trim() || null,
       notes: parsed.data.notes?.trim() || null, status: suppressed ? "SUPPRESSED" : "NEEDS_REVIEW",
       doNotContact: Boolean(suppressed),
     } });

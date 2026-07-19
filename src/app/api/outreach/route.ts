@@ -27,7 +27,11 @@ export async function POST(request: Request) {
   if (prospect.outreachMessages.some((item) => !item.sentAt && item.approvalStatus !== "REJECTED")) {
     return NextResponse.json({ error: "An active draft already exists." }, { status: 409 });
   }
-  const content = createCreatorOutreach(prospect.displayName);
+  const content = createCreatorOutreach({
+    displayName: prospect.displayName,
+    creatorCategory: prospect.creatorCategory,
+    personalizationHook: prospect.personalizationHook,
+  });
   const message = await db.outreachMessage.create({ data: { prospectId: prospect.id, ...content } });
   await db.prospect.update({ where: { id: prospect.id }, data: { status: "DRAFT_CREATED" } });
   await audit("OUTREACH_PREPARED", "OutreachMessage", message.id, { prospectId: prospect.id });

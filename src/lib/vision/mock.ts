@@ -13,6 +13,9 @@ export class MockVisionProvider implements VisionProvider {
         },
       ],
       displayName: "Mock Creator",
+      profileBio: "Practical creator tips and behind-the-scenes tutorials.",
+      creatorCategory: "creator education",
+      personalizationHook: "you share practical creator tips",
       notes: [
         "Development fixture only. Verify screenshot evidence before approval.",
       ],

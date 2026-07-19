@@ -13,6 +13,9 @@ Tailwind CSS, and a mock-first integration architecture.
 - Signed recruiter sessions with local demo mode and production password hashes
 - Validated private screenshot storage for PNG, JPEG, and WebP files
 - Mock and OpenAI vision providers plus a guarded Grok placeholder
+- Screenshot-visible bio, creator category, and personalization evidence extraction
+- Human review and editing of personalization evidence before draft creation
+- Evidence-based outreach drafting with safe category and generic fallbacks
 - Duplicate, suppression, review, draft approval, and send guards
 - Same-origin protection, login throttling, and guarded lifecycle transitions
 - Atomic capture persistence with failed-upload cleanup
@@ -23,6 +26,20 @@ Tailwind CSS, and a mock-first integration architecture.
 - Local lint, type-check, test, build, and smoke-test commands available
 
 No paid API credentials are needed in mock mode.
+
+## Phone screenshot workflow
+
+Once the application is running on an access-controlled hosted Preview, a
+recruiter can open the capture page on a phone and choose a PNG, JPEG, or WebP
+screenshot from Photos or Screenshots. The application extracts visible contact
+details and profile context, stores the image privately, and creates a prospect
+for review. After the recruiter verifies and approves the evidence, the
+outreach page prepares a personalized local draft. Nothing is emailed
+automatically.
+
+The current upload limit is 4 MB. HEIC conversion and automatic client-side
+compression remain backlog items; phone screenshots are commonly PNG and work
+when they fit the limit.
 
 For non-demo authentication, generate a password hash with
 `npm run auth:hash -- "your-long-password"`. When placing the bcrypt hash in a
