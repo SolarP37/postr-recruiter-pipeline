@@ -4,6 +4,10 @@ import Image from "next/image";
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { MAX_UPLOAD_BYTES, isAllowedMimeType } from "@/lib/upload";
+import {
+  normalizePhoneImage,
+  phoneImageCandidateError,
+} from "@/lib/client-image";
 
 export function CaptureForm() {
   const router = useRouter();
@@ -11,6 +15,8 @@ export function CaptureForm() {
   const [preview, setPreview] = useState("");
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
+  const [preparing, setPreparing] = useState(false);
+  const [optimized, setOptimized] = useState(false);
 
   useEffect(() => {
     return () => {
@@ -48,7 +54,14 @@ export function CaptureForm() {
     <form onSubmit={submit} className="grid gap-6 lg:grid-cols-[1fr_0.85fr]">
       <div className="card p-6">
         <label className="field-label">
-          Platform
+          Recruiting
+          <select name="leadType" className="field" required defaultValue="CREATOR">
+            <option value="CREATOR">Creator</option>
+            <option value="BRAND">Brand</option>
+          </select>
+        </label>
+        <label className="field-label">
+          <span className="mt-5">Source platform</span>
           <select
             name="platform"
             className="field"
@@ -60,6 +73,24 @@ export function CaptureForm() {
             <option value="youtube">YouTube</option>
             <option value="other">Other</option>
           </select>
+        </label>
+        <label className="field-label mt-5">
+          Organization name
+          <input
+            name="organizationName"
+            className="field"
+            maxLength={120}
+            placeholder="Required for brand leads"
+          />
+        </label>
+        <label className="field-label mt-5">
+          Business website
+          <input
+            name="businessWebsite"
+            className="field"
+            type="url"
+            placeholder="https://example.com"
+          />
         </label>
         <label className="field-label mt-5">
           Public profile URL
@@ -87,47 +118,72 @@ export function CaptureForm() {
             On a phone, choose it from Photos or Screenshots.
           </span>
           <span className="mt-1 text-xs text-slate-400">
-            PNG, JPEG, or WebP · maximum 4 MB
+            PNG, JPEG, WebP, HEIC, or HEIF · prepared locally before upload
           </span>
           <input
             className="sr-only"
             type="file"
-            accept="image/png,image/jpeg,image/webp"
+            accept="image/png,image/jpeg,image/webp,image/heic,image/heif,.heic,.heif"
             multiple={false}
-            onChange={(event) => {
+            onChange={async (event) => {
               const selected = event.target.files?.[0] || null;
-              if (
-                selected &&
-                (selected.size > MAX_UPLOAD_BYTES ||
-                  !isAllowedMimeType(selected.type))
-              ) {
+              setFile(null);
+              setPreview("");
+              setOptimized(false);
+              if (!selected) {
+                setMessage("");
+                return;
+              }
+              const candidateError = phoneImageCandidateError(selected);
+              if (candidateError) {
+                event.target.value = "";
+                setMessage(candidateError);
+                return;
+              }
+              setPreparing(true);
+              setMessage("Preparing the screenshot on this device…");
+              try {
+                const prepared = await normalizePhoneImage(selected);
+                setFile(prepared.file);
+                setPreview(URL.createObjectURL(prepared.file));
+                setOptimized(prepared.optimized);
+                setMessage(
+                  prepared.optimized
+                    ? "Screenshot converted and compressed locally. The original was not uploaded."
+                    : "",
+                );
+              } catch (error) {
+                event.target.value = "";
                 setFile(null);
                 setPreview("");
                 setMessage(
-                  selected.size > MAX_UPLOAD_BYTES
-                    ? "Images must be 4 MB or smaller."
-                    : "Choose a PNG, JPEG, or WebP screenshot.",
+                  error instanceof Error
+                    ? error.message
+                    : "The screenshot could not be prepared.",
                 );
-                return;
+              } finally {
+                setPreparing(false);
               }
-              setFile(selected);
-              setPreview(selected ? URL.createObjectURL(selected) : "");
-              setMessage("");
             }}
           />
         </label>
         {file && (
           <p className="mt-3 text-sm text-slate-500">
             Selected: {file.name} · {(file.size / 1024 / 1024).toFixed(2)} MB
+            {optimized ? " · ready for upload" : ""}
           </p>
         )}
         {message && <p className="notice mt-5">{message}</p>}
         <button
-          disabled={busy}
+          disabled={busy || preparing || !file}
           className="button-primary mt-6 w-full disabled:opacity-50"
           type="submit"
         >
-          {busy ? "Extracting visible contact information…" : "Upload and extract"}
+          {preparing
+            ? "Preparing screenshot…"
+            : busy
+              ? "Extracting visible contact information…"
+              : "Upload and extract"}
         </button>
       </div>
       <div className="card flex min-h-96 items-center justify-center overflow-hidden p-4">

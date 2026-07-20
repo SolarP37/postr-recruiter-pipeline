@@ -22,7 +22,6 @@ const readyEnvironment: ProductionEnvironment = {
   GOOGLE_REDIRECT_URI:
     "https://preview.example.com/api/auth/google/callback",
   TOKEN_ENCRYPTION_KEY: Buffer.alloc(32, 7).toString("base64"),
-  POSTR_RECRUITER_LINK: "https://postr.example.com/recruit",
 };
 
 describe("production readiness", () => {
@@ -50,7 +49,6 @@ describe("production readiness", () => {
         "VISION_PROVIDER",
         "GOOGLE_REDIRECT_URI",
         "TOKEN_ENCRYPTION_KEY",
-        "POSTR_RECRUITER_LINK",
       ]),
     );
     expect(JSON.stringify(issues)).not.toContain("file:./dev.db");

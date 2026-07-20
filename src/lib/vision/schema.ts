@@ -14,6 +14,7 @@ export const contactExtractionSchema = z.object({
   profileBio: z.string().trim().min(1).max(500).nullable(),
   creatorCategory: z.string().trim().min(1).max(120).nullable(),
   personalizationHook: z.string().trim().min(1).max(280).nullable(),
+  publicLocation: z.string().trim().min(1).max(120).nullable(),
   notes: z.array(z.string().trim().min(1).max(500)).max(20),
 }).superRefine((value, context) => {
   if (value.emailFound !== (value.emails.length > 0)) {

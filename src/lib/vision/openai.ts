@@ -4,10 +4,11 @@ import { validateExtraction } from "@/lib/vision/schema";
 
 const EXTRACTION_PROMPT = `Extract only publicly displayed business contact information visible in this screenshot.
 Never guess, infer, or construct an email from a username.
-Also extract only visibly supported professional creator context: profileBio, creatorCategory, and personalizationHook.
+Also extract only visibly supported professional creator context: profileBio, creatorCategory, personalizationHook, and publicLocation.
 profileBio must transcribe or closely summarize visible creator/business bio text relevant to their content. creatorCategory must be a short category directly supported by visible words. personalizationHook must be a short factual observation grounded in visible profile or content text and suitable for recruiter review.
+publicLocation may contain only a broad city, region, or country explicitly displayed in the public profile or business information. Never infer it from language, appearance, background scenery, phone metadata, or other indirect clues, and never extract a street address or precise location.
 Use null for any profile field that is not clearly visible. Do not extract or infer demographics, precise location, health, religion, politics, sexual orientation, other sensitive traits, audience size, or performance.
-Return JSON with emailFound, emails (email, visibleContext, confidence), displayName, profileBio, creatorCategory, personalizationHook, and notes.
+Return JSON with emailFound, emails (email, visibleContext, confidence), displayName, profileBio, creatorCategory, personalizationHook, publicLocation, and notes.
 The visibleContext must quote the nearby evidence shown in the image.
 If no email is visible, return emailFound false and an empty emails array.`;
 
@@ -47,6 +48,7 @@ export class OpenAIVisionProvider implements VisionProvider {
               "profileBio",
               "creatorCategory",
               "personalizationHook",
+              "publicLocation",
               "notes",
             ],
             properties: {
@@ -68,6 +70,7 @@ export class OpenAIVisionProvider implements VisionProvider {
               profileBio: { type: ["string", "null"] },
               creatorCategory: { type: ["string", "null"] },
               personalizationHook: { type: ["string", "null"] },
+              publicLocation: { type: ["string", "null"] },
               notes: { type: "array", items: { type: "string" } },
             },
           },

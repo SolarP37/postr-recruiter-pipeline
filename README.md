@@ -12,6 +12,8 @@ Tailwind CSS, and a mock-first integration architecture.
 - Protected dashboard, capture, prospect review, outreach, and settings pages
 - Signed recruiter sessions with local demo mode and production password hashes
 - Validated private screenshot storage for PNG, JPEG, and WebP files
+- Browser-side preparation for large phone screenshots and browser-decodable
+  HEIC/HEIF selections, with the original retained on the device
 - Mock and OpenAI vision providers plus a guarded Grok placeholder
 - Screenshot-visible bio, creator category, and personalization evidence extraction
 - Human review and editing of personalization evidence before draft creation
@@ -21,6 +23,26 @@ Tailwind CSS, and a mock-first integration architecture.
 - Atomic capture persistence with failed-upload cleanup
 - Gmail OAuth, encrypted token storage, draft creation, and confirmed-send endpoints
 - Referral link lifecycle and manual signup tracking
+- Patrick Conlon recruiter identity, canonical `PostrPatCon` referral
+  configuration, and decoder-verified official QR asset
+- Qualification evidence, follower eligibility, contact provenance, and
+  follow-up stop-state fields
+- Editable desktop/mobile recruitment-email previews with HTML and plain-text
+  Gmail draft alternatives
+- First-class creator and brand lead types with separate evidence-based
+  outreach templates and dashboard metrics
+- Responsive three-column prospect board with inline draft previews, delivery
+  history, broad public-location evidence, and local-time planning aids
+- Human-reviewed three-attempt outreach sequences with four-day and seven-day
+  minimum follow-up spacing and automatic stop conditions
+- Public invitation calls-to-action route through Patrick's canonical
+  `PostrPatCon` recruiter link, with creator/brand click totals on the
+  protected dashboard
+- Manual public-business-contact intake for search-engine and website research
+- Recruiter-triggered Gmail screenshot inbox import for phone sharing, using
+  read-only mailbox access, image validation, duplicate prevention, and the
+  same protected OCR review workflow as direct uploads
+- Draft-only delivery default with explicit manual/batch send mode guards
 - Automated unit and end-to-end mock workflow tests
 - Environment variable template added without secrets
 - Local lint, type-check, test, build, and smoke-test commands available
@@ -30,16 +52,21 @@ No paid API credentials are needed in mock mode.
 ## Phone screenshot workflow
 
 Once the application is running on an access-controlled hosted Preview, a
-recruiter can open the capture page on a phone and choose a PNG, JPEG, or WebP
-screenshot from Photos or Screenshots. The application extracts visible contact
-details and profile context, stores the image privately, and creates a prospect
-for review. After the recruiter verifies and approves the evidence, the
-outreach page prepares a personalized local draft. Nothing is emailed
-automatically.
+recruiter can open the capture page on a phone and choose a PNG, JPEG, WebP,
+HEIC, or HEIF screenshot from Photos or Screenshots. Images that need
+conversion or compression are prepared as JPEG files in the browser before
+upload; the original large image is not transmitted. Browser HEIC/HEIF decoding
+varies by device, so the UI provides an export-to-JPEG fallback when conversion
+is unavailable.
 
-The current upload limit is 4 MB. HEIC conversion and automatic client-side
-compression remain backlog items; phone screenshots are commonly PNG and work
-when they fit the limit.
+Only a validated PNG, JPEG, or WebP result of 4 MB or less reaches the capture
+API. The application extracts visible contact details and profile context,
+stores the prepared image privately, and creates a prospect for review.
+Existing review-stage screenshots can be reprocessed after a real vision
+provider is enabled. After the recruiter verifies the evidence, qualification,
+and public contact basis, approval automatically creates a tailored local
+creator or brand draft on the outreach page. Every draft remains pending human
+review. Nothing is emailed automatically.
 
 For non-demo authentication, generate a password hash with
 `npm run auth:hash -- "your-long-password"`. When placing the bcrypt hash in a
@@ -94,3 +121,6 @@ delivery plan and [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for external setup
 and production readiness. The PostgreSQL rehearsal and rollback procedure is in
 [docs/POSTGRESQL_MIGRATION_RUNBOOK.md](docs/POSTGRESQL_MIGRATION_RUNBOOK.md).
 Remaining owner-controlled work is tracked in [docs/BACKLOG.md](docs/BACKLOG.md).
+Patrick's outreach configuration, official QR provenance, Gmail behavior, and
+tracking limitations are documented in
+[docs/RECRUITER_OUTREACH.md](docs/RECRUITER_OUTREACH.md).

@@ -1,6 +1,8 @@
 import { isDemoAuthEnabled } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { productionReadinessIssues } from "@/lib/production-readiness";
+import { getSendingMode, RECRUITER_CONFIG } from "@/config/recruiter";
+import { hasGmailCaptureScope } from "@/lib/gmail";
 
 export default async function SettingsPage() {
   const google = await db.oAuthToken.findUnique({ where: { provider: "google" } });
@@ -23,7 +25,10 @@ export default async function SettingsPage() {
     ["Vision provider", process.env.VISION_PROVIDER || "mock"],
     ["OpenAI key", process.env.OPENAI_API_KEY ? "Configured" : "Not configured"],
     ["Gmail OAuth", google ? "Connected" : googleConfigured ? "Ready to connect" : "Credentials required"],
-    ["Postr recruiter link", process.env.POSTR_RECRUITER_LINK ? "Configured" : "Not configured"],
+    ["Phone capture email", process.env.INBOUND_CAPTURE_EMAIL || "Not configured"],
+    ["Gmail capture access", hasGmailCaptureScope(google?.scope) ? "Granted" : "Reconnect required"],
+    ["Recruiter", `${RECRUITER_CONFIG.recruiterName} · ${RECRUITER_CONFIG.referralCode}`],
+    ["Outreach mode", getSendingMode().replaceAll("_", " ")],
   ];
   return (
     <main className="page-shell">
@@ -50,7 +55,11 @@ export default async function SettingsPage() {
       )}
       <section className="card mt-6 p-6">
         <h2 className="font-semibold">Gmail</h2>
-        <p className="mt-2 text-sm leading-6 text-slate-500">OAuth endpoints are prepared, but connecting requires a Google Cloud OAuth client. The first functional mode creates Gmail drafts only.</p>
+        <p className="mt-2 text-sm leading-6 text-slate-500">
+          Gmail creates reviewed drafts and can read screenshot attachments
+          sent to the configured capture address. Reading is limited to the
+          recruiter-triggered capture import workflow.
+        </p>
         {google ? (
           <form action="/api/gmail/disconnect" method="post">
             <button className="button-secondary button-danger mt-5">Disconnect Gmail</button>

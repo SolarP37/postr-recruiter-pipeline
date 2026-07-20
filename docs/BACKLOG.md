@@ -70,15 +70,22 @@ infrastructure must exist.
 
 Acceptance criteria:
 
-- Convert supported HEIC/HEIF phone images to a validated web image before OCR.
-- Resize or compress oversized screenshots locally without uploading the
+- [x] Convert browser-decodable HEIC/HEIF phone images to a validated web image
+  before OCR.
+- [x] Resize or compress oversized screenshots locally without uploading the
   original.
-- Preserve readable email and profile text after conversion.
-- Add browser tests for unsupported, oversized, converted, and compressed files.
-- Keep server-side signature and size validation as the final trust boundary.
+- [x] Preserve readable email and profile text with a minimum 1,700-pixel
+  long edge in the final compression attempt.
+- [ ] Add automated cross-browser tests for unsupported, oversized, converted,
+  and compressed files.
+- [x] Keep server-side signature and size validation as the final trust boundary.
 
-The current capture page supports phone-selected PNG, JPEG, and WebP screenshots
-up to 4 MB and rejects invalid files before upload.
+The capture page now accepts PNG, JPEG, WebP, HEIC, and HEIF selections up to
+20 MB. Files requiring preparation are converted locally to JPEG and must pass
+the existing 4 MB MIME/signature validation before OCR. Manual live-browser
+checks cover normal and oversized/compressed fixtures. HEIC/HEIF support still
+depends on the selecting browser's decoder; unsupported devices receive an
+export-to-JPEG instruction.
 
 ### Configure Google OAuth and Gmail
 
@@ -87,12 +94,14 @@ Acceptance criteria:
 - Enable Gmail API in an owner-controlled Google Cloud project.
 - Configure the OAuth consent screen and Preview callback URI.
 - Store credentials only in protected Preview variables.
-- Confirm the application requests only `gmail.compose`.
+- Confirm the application requests only `gmail.compose` plus `gmail.readonly`
+  for recruiter-triggered capture inbox imports.
 - Verify draft creation and literal `SEND` confirmation without automatic
   outreach.
 
-Current blocker: owner-controlled Google Cloud access and OAuth approval are
-required.
+Local Google OAuth and Gmail capture are configured and working. Preview still
+requires owner-controlled deployment credentials, a hosted callback URI, and
+Preview-scoped protected variables.
 
 ### Make Gmail delivery crash-safe and reconcilable
 

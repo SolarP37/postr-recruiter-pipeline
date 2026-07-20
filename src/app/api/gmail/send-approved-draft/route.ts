@@ -26,7 +26,18 @@ export async function POST(request: Request) {
   const sentAt = new Date();
   await db.$transaction([
     db.outreachMessage.update({ where: { id: message.id }, data: { sentAt } }),
-    db.prospect.update({ where: { id: message.prospectId }, data: { status: "SENT" } }),
+    db.prospect.update({
+      where: { id: message.prospectId },
+      data: {
+        status: "SENT",
+        lastContactedAt: sentAt,
+        nextFollowUpAt: null,
+        followUpStage: Math.max(
+          message.prospect.followUpStage,
+          message.followUpNumber,
+        ),
+      },
+    }),
   ]);
   await audit("GMAIL_DRAFT_SENT", "OutreachMessage", message.id);
   return NextResponse.json({ sent: true });

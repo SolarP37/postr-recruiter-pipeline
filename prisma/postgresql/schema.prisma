@@ -31,34 +31,76 @@ enum ApprovalStatus {
   REJECTED
 }
 
+enum QualificationStatus {
+  QUALIFIED
+  LIKELY_QUALIFIED
+  NEEDS_REVIEW
+  NOT_YET_QUALIFIED
+  DO_NOT_CONTACT
+}
+
+enum LeadType {
+  CREATOR
+  BRAND
+}
+
 model Prospect {
-  id                      String            @id @default(cuid())
-  createdAt               DateTime          @default(now())
-  updatedAt               DateTime          @updatedAt
-  email                   String?
-  normalizedEmail         String?
-  displayName             String?
-  sourcePlatform          String
-  sourceUrl               String?
-  campaign                String?
-  screenshotPath          String?
-  visibleEmailEvidence    String?
-  extractionConfidence    Float?
-  profileBio              String?
-  creatorCategory         String?
-  personalizationHook     String?
-  status                  ProspectStatus    @default(CAPTURED)
-  notes                   String?
-  doNotContact            Boolean           @default(false)
-  gmailDraftId            String?
-  referralLinkGeneratedAt DateTime?
-  referralLinkCopiedAt    DateTime?
-  referralLinkSentAt      DateTime?
-  joinedAt                DateTime?
-  outreachMessages        OutreachMessage[]
-  sourceAssets            SourceAsset[]
+  id                       String              @id @default(cuid())
+  createdAt                DateTime            @default(now())
+  updatedAt                DateTime            @updatedAt
+  email                    String?
+  normalizedEmail          String?
+  leadType                 LeadType            @default(CREATOR)
+  displayName              String?
+  creatorFirstName         String?
+  organizationName         String?
+  businessWebsite          String?
+  username                 String?
+  sourcePlatform           String
+  sourceUrl                String?
+  emailSourceUrl           String?
+  emailSourceType          String?
+  campaign                 String?
+  screenshotPath           String?
+  visibleEmailEvidence     String?
+  extractionConfidence     Float?
+  profileBio               String?
+  creatorCategory          String?
+  personalizationHook      String?
+  personalizationSourceUrl String?
+  personalizationCheckedAt DateTime?
+  publicLocation           String?
+  locationEvidenceUrl      String?
+  timeZone                 String?
+  preferredSendHourLocal   Int                 @default(10)
+  followerCount            Int?
+  followerCountVerified    Boolean             @default(false)
+  qualificationStatus      QualificationStatus @default(NEEDS_REVIEW)
+  qualificationEvidenceUrl String?
+  qualificationCheckedAt   DateTime?
+  status                   ProspectStatus      @default(CAPTURED)
+  notes                    String?
+  doNotContact             Boolean             @default(false)
+  gmailDraftId             String?
+  referralLinkGeneratedAt  DateTime?
+  referralLinkCopiedAt     DateTime?
+  referralLinkSentAt       DateTime?
+  joinedAt                 DateTime?
+  replyReceivedAt          DateTime?
+  hardBouncedAt            DateTime?
+  optedOutAt               DateTime?
+  campaignStartedAt        DateTime?
+  campaignCompletedAt      DateTime?
+  commissionAmount         Float?
+  followUpStage            Int                 @default(0)
+  nextFollowUpAt           DateTime?
+  lastContactedAt          DateTime?
+  suppressionReason        String?
+  outreachMessages         OutreachMessage[]
+  sourceAssets             SourceAsset[]
 
   @@index([normalizedEmail])
+  @@index([leadType])
   @@index([status])
   @@index([createdAt])
 }
@@ -70,12 +112,16 @@ model OutreachMessage {
   updatedAt      DateTime       @updatedAt
   subject        String
   body           String
+  htmlBody       String?
+  followUpNumber Int            @default(0)
   approvalStatus ApprovalStatus @default(PENDING)
   gmailDraftId   String?
+  scheduledFor   DateTime?
   sentAt         DateTime?
   prospect       Prospect       @relation(fields: [prospectId], references: [id], onDelete: Cascade)
 
   @@index([prospectId])
+  @@index([scheduledFor])
 }
 
 model SourceAsset {

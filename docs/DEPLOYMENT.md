@@ -95,10 +95,23 @@ In Google Cloud Console:
      `https://YOUR_PRODUCTION_DOMAIN/api/auth/google/callback`
 6. Place the client ID and secret in local or deployment environment variables.
 
-The application requests only `gmail.compose`. It creates a Gmail draft after
-prospect and message approval. Sending requires the separate literal
-confirmation `SEND`; the UI intentionally defaults to manual sending from
-Gmail.
+The application requests `gmail.compose` for reviewed drafts and
+`gmail.readonly` for the recruiter-triggered screenshot inbox importer. The
+importer searches only the configured `INBOUND_CAPTURE_EMAIL`, only messages
+with supported image attachments, only the last 30 days, and at most 10
+messages per import. Gmail's OAuth consent screen still describes the full
+read-only scope. Existing Gmail connections must be reconnected after this
+scope is added.
+
+Set `INBOUND_CAPTURE_EMAIL` to a dedicated mailbox or Gmail plus-address such
+as `yourname+postr-capture@gmail.com`. From a phone, share a screenshot to that
+address. Optional subject tags are `[brand]`, `[instagram]`, `[tiktok]`, and
+`[youtube]`. The importer validates each image, prevents repeat imports using
+the Gmail message and attachment IDs, and sends it through the same protected
+OCR workflow as a direct upload. It never creates or sends outreach.
+
+Draft sending still requires the separate literal confirmation `SEND`; the UI
+intentionally defaults to manual sending from Gmail.
 
 ## 5. Required production environment
 
@@ -117,8 +130,10 @@ Gmail.
 - `GOOGLE_CLIENT_ID`
 - `GOOGLE_CLIENT_SECRET`
 - `GOOGLE_REDIRECT_URI`
+- `INBOUND_CAPTURE_EMAIL`
 - `TOKEN_ENCRYPTION_KEY` — 32 random bytes encoded as base64
-- `POSTR_RECRUITER_LINK`
+- `OUTREACH_SENDING_MODE=draft_only` (keep this safe default until the owner
+  explicitly approves another mode)
 
 When storing a bcrypt hash in a Next.js `.env` file, escape each `$` as `\$`.
 Use the unescaped value in Vercel’s environment-variable UI.

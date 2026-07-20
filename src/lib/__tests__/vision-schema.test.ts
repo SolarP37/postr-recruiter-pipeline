@@ -10,6 +10,7 @@ describe("vision output schema", () => {
       profileBio: "Food tutorials and weekday recipes.",
       creatorCategory: "food",
       personalizationHook: "you share weekday recipes",
+      publicLocation: "Austin, Texas",
       notes: [],
     });
     expect(result.emails[0].email).toBe("creator@example.com");
@@ -23,6 +24,7 @@ describe("vision output schema", () => {
       profileBio: null,
       creatorCategory: null,
       personalizationHook: null,
+      publicLocation: null,
       notes: ["No publicly displayed email address was visible."],
     }).emailFound).toBe(false);
   });
@@ -30,7 +32,7 @@ describe("vision output schema", () => {
   it("rejects an inconsistent emailFound flag", () => {
     expect(() => contactExtractionSchema.parse({
       emailFound: true, emails: [], displayName: null, profileBio: null,
-      creatorCategory: null, personalizationHook: null, notes: [],
+      creatorCategory: null, personalizationHook: null, publicLocation: null, notes: [],
     })).toThrow();
   });
 
@@ -39,7 +41,7 @@ describe("vision output schema", () => {
       emailFound: true,
       emails: [{ email: "creator@example.com", visibleContext: "visible", confidence: 1.1 }],
       displayName: null, profileBio: null, creatorCategory: null,
-      personalizationHook: null, notes: [],
+      personalizationHook: null, publicLocation: null, notes: [],
     })).toThrow();
   });
 
@@ -50,6 +52,7 @@ describe("vision output schema", () => {
       displayName: null,
       profileBio: null,
       creatorCategory: null,
+      publicLocation: null,
       notes: [],
     };
     expect(() => contactExtractionSchema.parse({

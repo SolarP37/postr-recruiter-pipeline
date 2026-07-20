@@ -128,9 +128,5 @@ export function productionReadinessIssues(
     );
   }
 
-  if (!httpsUrl(env.POSTR_RECRUITER_LINK)) {
-    add("POSTR_RECRUITER_LINK", "Configure the real HTTPS recruiter link.");
-  }
-
   return issues;
 }

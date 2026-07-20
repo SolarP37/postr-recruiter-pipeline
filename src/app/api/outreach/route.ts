@@ -3,7 +3,7 @@ import { z } from "zod";
 import { requireApiSession } from "@/lib/api-auth";
 import { audit } from "@/lib/audit";
 import { db } from "@/lib/db";
-import { createCreatorOutreach } from "@/lib/outreach";
+import { createTailoredOutreach } from "@/lib/outreach";
 import { canCreateOutreach } from "@/lib/prospect-guards";
 import { requireSameOrigin } from "@/lib/request-security";
 
@@ -19,20 +19,28 @@ export async function POST(request: Request) {
   const prospect = await db.prospect.findUnique({ where: { id: parsed.data.prospectId }, include: { outreachMessages: true } });
   if (!prospect) return NextResponse.json({ error: "Prospect not found." }, { status: 404 });
   const suppressed = prospect.normalizedEmail ? await db.suppressionEntry.findUnique({ where: { normalizedEmail: prospect.normalizedEmail } }) : null;
+  const duplicateCount = prospect.normalizedEmail
+    ? await db.prospect.count({ where: { normalizedEmail: prospect.normalizedEmail } })
+    : 0;
   const guard = canCreateOutreach({
-    status: prospect.status, email: prospect.email, doNotContact: prospect.doNotContact,
-    isSuppressed: Boolean(suppressed), hasSentMessage: prospect.outreachMessages.some((item) => item.sentAt),
+    status: prospect.status, qualificationStatus: prospect.qualificationStatus,
+    email: prospect.email, doNotContact: prospect.doNotContact,
+    isSuppressed: Boolean(suppressed), isDuplicate: duplicateCount > 1,
+    hasSentMessage: prospect.outreachMessages.some((item) => item.sentAt),
   });
   if (!guard.allowed) return NextResponse.json({ error: guard.reason }, { status: 409 });
   if (prospect.outreachMessages.some((item) => !item.sentAt && item.approvalStatus !== "REJECTED")) {
     return NextResponse.json({ error: "An active draft already exists." }, { status: 409 });
   }
-  const content = createCreatorOutreach({
-    displayName: prospect.displayName,
-    creatorCategory: prospect.creatorCategory,
-    personalizationHook: prospect.personalizationHook,
+  const content = createTailoredOutreach(prospect);
+  const message = await db.outreachMessage.create({
+    data: {
+      prospectId: prospect.id,
+      subject: content.subject,
+      body: content.body,
+      htmlBody: content.htmlBody,
+    },
   });
-  const message = await db.outreachMessage.create({ data: { prospectId: prospect.id, ...content } });
   await db.prospect.update({ where: { id: prospect.id }, data: { status: "DRAFT_CREATED" } });
   await audit("OUTREACH_PREPARED", "OutreachMessage", message.id, { prospectId: prospect.id });
   return NextResponse.json({ id: message.id });
