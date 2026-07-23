@@ -57,6 +57,15 @@ const requestSchema = z.object({
     "DO_NOT_CONTACT",
   ]).optional(),
   qualificationEvidenceUrl: z.string().max(2048).nullable().optional(),
+  outreachCountryCode: z.string().max(2).nullable().optional(),
+  outreachPermissionBasis: z.enum([
+    "UNKNOWN",
+    "EXPRESS_CONSENT",
+    "EXISTING_BUSINESS_RELATIONSHIP",
+    "CORPORATE_BUSINESS_CONTACT",
+    "PUBLICLY_LISTED_BUSINESS_CONTACT",
+  ]).optional(),
+  outreachPermissionEvidence: z.string().max(2048).nullable().optional(),
   notes: z.string().max(2000).nullable().optional(),
 });
 
@@ -208,6 +217,11 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
       requestedStatus: parsed.data.qualificationStatus || "NEEDS_REVIEW",
     });
     const doNotContact = Boolean(suppressed) || qualificationStatus === "DO_NOT_CONTACT";
+    const outreachCountryCode = parsed.data.outreachCountryCode?.trim().toUpperCase() || null;
+    if (outreachCountryCode && !/^[A-Z]{2}$/.test(outreachCountryCode)) {
+      return NextResponse.json({ error: "Use a two-letter country code such as US, CA, or GB." }, { status: 400 });
+    }
+    const permissionEvidence = parsed.data.outreachPermissionEvidence?.trim() || null;
     await db.prospect.update({ where: { id }, data: {
       email, normalizedEmail, displayName: parsed.data.displayName?.trim() || null,
       leadType: parsed.data.leadType || prospect.leadType,
@@ -231,6 +245,10 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
       qualificationStatus,
       qualificationEvidenceUrl: parsed.data.qualificationEvidenceUrl?.trim() || null,
       qualificationCheckedAt: parsed.data.qualificationEvidenceUrl ? new Date() : null,
+      outreachCountryCode,
+      outreachPermissionBasis: parsed.data.outreachPermissionBasis || "UNKNOWN",
+      outreachPermissionEvidence: permissionEvidence,
+      outreachPermissionCheckedAt: permissionEvidence ? new Date() : null,
       notes: parsed.data.notes?.trim() || null,
       status: doNotContact ? "SUPPRESSED" : "NEEDS_REVIEW",
       doNotContact,

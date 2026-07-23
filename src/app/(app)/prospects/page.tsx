@@ -90,6 +90,7 @@ export default async function ProspectsPage({
               <div><dt className="font-semibold text-slate-500">Qualification source</dt><dd className="mt-1 break-all">{prospect.qualificationEvidenceUrl ? <a className="text-blue-600" href={prospect.qualificationEvidenceUrl} target="_blank" rel="noreferrer">{prospect.qualificationEvidenceUrl}</a> : "Not recorded"}</dd></div>
               <div><dt className="font-semibold text-slate-500">Public location</dt><dd className="mt-1">{prospect.publicLocation || "Not recorded"}{prospect.locationEvidenceUrl ? <> · <a className="text-blue-600" href={prospect.locationEvidenceUrl} target="_blank" rel="noreferrer">source</a></> : null}</dd></div>
               <div><dt className="font-semibold text-slate-500">Time zone</dt><dd className="mt-1">{prospect.timeZone || "Not recorded"}</dd></div>
+              <div><dt className="font-semibold text-slate-500">Outreach permission</dt><dd className="mt-1">{prospect.outreachCountryCode ? `${prospect.outreachCountryCode} · ${prospect.outreachPermissionBasis.replaceAll("_", " ").toLowerCase()}` : "Not reviewed"}</dd></div>
               {prospect.screenshotPath && <div><dt className="font-semibold text-slate-500">Screenshot</dt><dd className="mt-1"><a className="text-blue-600" href={`/api/assets/${prospect.id}`} target="_blank">View protected asset</a></dd></div>}
             </dl>
             <ProspectOutreachPanel
@@ -137,6 +138,9 @@ export default async function ProspectsPage({
               followerCountVerified={prospect.followerCountVerified}
               qualificationStatus={prospect.qualificationStatus}
               qualificationEvidenceUrl={prospect.qualificationEvidenceUrl}
+              outreachCountryCode={prospect.outreachCountryCode}
+              outreachPermissionBasis={prospect.outreachPermissionBasis}
+              outreachPermissionEvidence={prospect.outreachPermissionEvidence}
               notes={prospect.notes}
               status={prospect.status}
               hasScreenshot={Boolean(prospect.screenshotPath)}

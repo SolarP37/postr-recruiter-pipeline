@@ -94,6 +94,29 @@ export function canSendApprovedDraft(input: DeliveryGuardInput) {
   return { allowed: true };
 }
 
+export function canBeginDeliveryAttempt(input: {
+  existingAttemptStatus: "STARTED" | "CONFIRMED" | "AMBIGUOUS" | null;
+}) {
+  if (input.existingAttemptStatus === "CONFIRMED") {
+    return { allowed: false, reason: "This message has already been delivered." };
+  }
+  if (input.existingAttemptStatus === "STARTED") {
+    return {
+      allowed: false,
+      reason:
+        "A delivery attempt is already in progress or awaiting reconciliation. Do not retry it.",
+    };
+  }
+  if (input.existingAttemptStatus === "AMBIGUOUS") {
+    return {
+      allowed: false,
+      reason:
+        "Gmail delivery is ambiguous. Reconcile the attempt before taking any further action.",
+    };
+  }
+  return { allowed: true };
+}
+
 export function followUpEligibility(input: {
   sentAt: Date | null;
   replyReceivedAt: Date | null;

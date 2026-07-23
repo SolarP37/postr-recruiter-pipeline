@@ -60,3 +60,19 @@ export function getHostedQrUrl(
   if (!appUrl) return RECRUITER_CONFIG.qrAssetPath;
   return new URL(RECRUITER_CONFIG.qrAssetPath, appUrl).toString();
 }
+
+export function getOptOutUrl(
+  appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+): string {
+  return new URL("/opt-out", appUrl).toString();
+}
+
+export function getOutreachComplianceContact() {
+  return {
+    contactEmail:
+      process.env.OUTREACH_CONTACT_EMAIL ||
+      process.env.INBOUND_CAPTURE_EMAIL ||
+      "",
+    postalAddress: process.env.OUTREACH_POSTAL_ADDRESS?.trim() || "",
+  };
+}

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  canBeginDeliveryAttempt,
   canCreateGmailDraft,
   canCreateOutreach,
   canSendApprovedDraft,
@@ -47,6 +48,29 @@ describe("Gmail delivery guards", () => {
   it("requires approval and prevents duplicate sends", () => {
     expect(canCreateGmailDraft({ ...approved, approvalStatus: "PENDING" }).allowed).toBe(false);
     expect(canSendApprovedDraft({ ...approved, sentAt: new Date(), sendingMode: "manual_send" }).reason).toMatch(/already been sent/i);
+  });
+});
+
+describe("crash-safe delivery attempts", () => {
+  it("allows only a message with no prior provider attempt", () => {
+    expect(
+      canBeginDeliveryAttempt({ existingAttemptStatus: null }).allowed,
+    ).toBe(true);
+  });
+
+  it.each(["STARTED", "CONFIRMED", "AMBIGUOUS"] as const)(
+    "blocks a retry after %s",
+    (status) => {
+      expect(
+        canBeginDeliveryAttempt({ existingAttemptStatus: status }).allowed,
+      ).toBe(false);
+    },
+  );
+
+  it("explains that ambiguous delivery requires reconciliation", () => {
+    expect(
+      canBeginDeliveryAttempt({ existingAttemptStatus: "AMBIGUOUS" }).reason,
+    ).toMatch(/reconcile/i);
   });
 });
 

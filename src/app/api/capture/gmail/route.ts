@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { requireApiSession } from "@/lib/api-auth";
 import { importGmailCaptureImages } from "@/lib/gmail-capture";
 import { requireSameOrigin } from "@/lib/request-security";
+import { reportOperationalError } from "@/lib/operations";
 
 export async function POST(request: Request) {
   const crossSite = requireSameOrigin(request);
@@ -12,6 +13,7 @@ export async function POST(request: Request) {
   try {
     return NextResponse.json(await importGmailCaptureImages());
   } catch (error) {
+    await reportOperationalError("gmail_capture_import", error);
     return NextResponse.json(
       {
         error:

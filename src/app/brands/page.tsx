@@ -10,6 +10,13 @@ export const metadata: Metadata = {
   title: "Join Postr as a Brand",
   description:
     "Prepare a creator-ready campaign and review Postr through Patrick Conlon's recruiter invitation.",
+  alternates: { canonical: "/brands" },
+  openGraph: {
+    title: "Join Postr as a Brand",
+    description:
+      "Prepare a creator-ready campaign and review Postr through Patrick Conlon's recruiter invitation.",
+    url: "/brands",
+  },
 };
 
 export default function BrandsPage() {

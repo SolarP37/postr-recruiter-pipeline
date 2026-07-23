@@ -97,11 +97,12 @@ In Google Cloud Console:
 
 The application requests `gmail.compose` for reviewed drafts and
 `gmail.readonly` for the recruiter-triggered screenshot inbox importer. The
-importer searches only the configured `INBOUND_CAPTURE_EMAIL`, only messages
-with supported image attachments, only the last 30 days, and at most 10
-messages per import. Gmail's OAuth consent screen still describes the full
-read-only scope. Existing Gmail connections must be reconnected after this
-scope is added.
+importer searches only the configured `INBOUND_CAPTURE_EMAIL`, only the last
+30 days, and at most 10 messages per import. It accepts ordinary image
+attachments and inline image MIME parts, ignores non-image messages, and shows
+a persistent processed/skipped/duplicate/failed report. Gmail's OAuth consent
+screen still describes the full read-only scope. Existing Gmail connections
+must be reconnected after this scope is added.
 
 Set `INBOUND_CAPTURE_EMAIL` to a dedicated mailbox or Gmail plus-address such
 as `yourname+postr-capture@gmail.com`. From a phone, share a screenshot to that
@@ -134,11 +135,37 @@ intentionally defaults to manual sending from Gmail.
 - `TOKEN_ENCRYPTION_KEY` — 32 random bytes encoded as base64
 - `OUTREACH_SENDING_MODE=draft_only` (keep this safe default until the owner
   explicitly approves another mode)
+- `OUTREACH_CONTACT_EMAIL`
+- `OUTREACH_POSTAL_ADDRESS` - a real sender postal address; Gmail outreach
+  draft creation is blocked when absent
+- `CRON_SECRET` - at least 16 random characters; authorizes the daily backup
+- `OPERATIONS_ALERT_WEBHOOK_URL` - optional generic alert receiver; alerts do
+  not contain prospect data
+- `GOOGLE_SITE_VERIFICATION` - after Search Console issues a verification token
 
 When storing a bcrypt hash in a Next.js `.env` file, escape each `$` as `\$`.
 Use the unescaped value in Vercel’s environment-variable UI.
 
-## 6. GitHub
+## 6. Backups, monitoring, and recovery
+
+- `/api/health` performs a no-secret database/configuration check and returns
+  HTTP 503 when unhealthy. Connect an external uptime monitor to this route.
+- Vercel invokes `/api/cron/backup` daily. The route creates a private,
+  compressed snapshot in the connected Blob store, immediately downloads and
+  validates it as a recovery test, retains 30 days, and records an audit event.
+- The snapshot excludes OAuth tokens. Restoring production is deliberately a
+  supervised operation: provision a clean database, validate the snapshot,
+  import parent tables before dependent tables, compare counts, then switch
+  traffic only after an application smoke test.
+- Configure `OPERATIONS_ALERT_WEBHOOK_URL` for capture/backup failure alerts.
+  The Settings page shows the latest successful backup and recent errors.
+- Once per quarter, restore the latest backup into a temporary database and
+  verify login, capture, prospect review, suppression, and outreach history.
+
+Do not treat a successful backup upload as a recovery test unless the stored
+object was read back and validated.
+
+## 7. GitHub
 
 1. Replace the repository-local placeholder Git author identity.
 2. Review `git status`, the full diff, and test output.
@@ -146,7 +173,7 @@ Use the unescaped value in Vercel’s environment-variable UI.
 4. Push a feature branch, not directly to an unreviewed production branch.
 5. Confirm `.env.local`, database files, OAuth tokens, and uploads are absent.
 
-## 7. Vercel
+## 8. Vercel
 
 1. Import the owner-approved GitHub repository.
 2. Configure the database, private Blob store, and other environment variables

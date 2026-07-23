@@ -79,6 +79,12 @@ export function productionReadinessIssues(
   ) {
     add("ADMIN_EMAIL", "Configure a valid recruiter administrator email.");
   }
+  if (!nonEmpty(env.CRON_SECRET) || env.CRON_SECRET.length < 16) {
+    add(
+      "CRON_SECRET",
+      "Configure at least 16 random characters to protect scheduled backups.",
+    );
+  }
   if (
     !nonEmpty(env.ADMIN_PASSWORD_HASH) ||
     !/^\$2[aby]\$\d{2}\$.{53}$/.test(env.ADMIN_PASSWORD_HASH)
@@ -125,6 +131,22 @@ export function productionReadinessIssues(
     add(
       "TOKEN_ENCRYPTION_KEY",
       "Configure exactly 32 random bytes encoded as base64.",
+    );
+  }
+
+  if (!nonEmpty(env.OUTREACH_POSTAL_ADDRESS)) {
+    add(
+      "OUTREACH_POSTAL_ADDRESS",
+      "Configure a valid sender postal address before creating or sending outreach drafts.",
+    );
+  }
+  if (
+    !nonEmpty(env.OUTREACH_CONTACT_EMAIL) ||
+    !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(env.OUTREACH_CONTACT_EMAIL)
+  ) {
+    add(
+      "OUTREACH_CONTACT_EMAIL",
+      "Configure a monitored sender contact email for outreach disclosures.",
     );
   }
 

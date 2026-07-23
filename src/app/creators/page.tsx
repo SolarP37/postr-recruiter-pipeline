@@ -10,6 +10,13 @@ export const metadata: Metadata = {
   title: "Join Postr as a Creator",
   description:
     "Review creator readiness and join Postr through Patrick Conlon's recruiter invitation.",
+  alternates: { canonical: "/creators" },
+  openGraph: {
+    title: "Join Postr as a Creator",
+    description:
+      "Review creator readiness and join Postr through Patrick Conlon's recruiter invitation.",
+    url: "/creators",
+  },
 };
 
 export default function CreatorsPage() {

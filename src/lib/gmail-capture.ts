@@ -21,6 +21,25 @@ type ImagePart = {
   partId: string;
 };
 
+export type GmailCaptureItemResult = {
+  messageId: string;
+  subject: string;
+  filename: string;
+  status: "processed" | "skipped" | "failed";
+  prospectsCreated: number;
+  duplicatesDetected: number;
+  optimized: boolean;
+  detail: string;
+};
+
+export function gmailCaptureQuery(captureEmail: string) {
+  // Gmail does not classify images pasted into a message body as
+  // `has:attachment`, even though the full MIME payload contains a supported
+  // image part. Fetch the small, bounded capture inbox window and filter its
+  // MIME parts ourselves so phone-mail clients work consistently.
+  return `to:${captureEmail} newer_than:30d`;
+}
+
 export function gmailAttachmentExternalId(
   messageId: string,
   part: Pick<ImagePart, "partId">,
@@ -54,7 +73,7 @@ export function gmailImportMetadataMatches(
   }
 }
 
-function collectImageParts(
+export function collectImageParts(
   part: gmail_v1.Schema$MessagePart,
 ): ImagePart[] {
   const nested = (part.parts || []).flatMap(collectImageParts);
@@ -180,7 +199,7 @@ export async function importGmailCaptureImages() {
   const result = await gmail.users.messages.list({
     userId: "me",
     maxResults: 25,
-    q: `to:${captureEmail} has:attachment newer_than:30d`,
+    q: gmailCaptureQuery(captureEmail),
   });
 
   const report = {
@@ -192,6 +211,8 @@ export async function importGmailCaptureImages() {
     skipped: 0,
     errors: [] as string[],
     prospectIds: [] as string[],
+    duplicatesDetected: 0,
+    items: [] as GmailCaptureItemResult[],
   };
 
   for (const summary of result.data.messages || []) {
@@ -209,9 +230,9 @@ export async function importGmailCaptureImages() {
       : [];
     report.supportedAttachmentsFound += parts.length;
     if (parts.length === 0) {
-      report.errors.push(
-        `${subject || "Message without a subject"}: no supported PNG, JPEG, or WebP attachment was found.`,
-      );
+      // The bounded inbox query can include ordinary messages. They are not
+      // failures because they were never candidate screenshots.
+      continue;
     }
 
     for (const part of parts) {
@@ -242,6 +263,16 @@ export async function importGmailCaptureImages() {
       );
       if (alreadyImported) {
         report.skipped += 1;
+        report.items.push({
+          messageId: summary.id,
+          subject: subject || "Message without a subject",
+          filename: part.filename,
+          status: "skipped",
+          prospectsCreated: 0,
+          duplicatesDetected: 0,
+          optimized: false,
+          detail: "Already imported previously.",
+        });
         continue;
       }
 
@@ -267,6 +298,21 @@ export async function importGmailCaptureImages() {
             captureSource: "gmail_attachment",
           },
         });
+        const createdProspects = await db.prospect.findMany({
+          where: { id: { in: prospectIds } },
+          select: { id: true, normalizedEmail: true },
+        });
+        let duplicateCount = 0;
+        for (const prospect of createdProspects) {
+          if (!prospect.normalizedEmail) continue;
+          const priorCount = await db.prospect.count({
+            where: {
+              normalizedEmail: prospect.normalizedEmail,
+              id: { notIn: prospectIds },
+            },
+          });
+          if (priorCount > 0) duplicateCount += 1;
+        }
         await db.auditEvent.create({
           data: {
             action: "GMAIL_CAPTURE_IMPORTED",
@@ -286,13 +332,35 @@ export async function importGmailCaptureImages() {
         report.attachmentsImported += 1;
         if (prepared.optimized) report.optimizedAttachments += 1;
         report.prospectsCreated += prospectIds.length;
+        report.duplicatesDetected += duplicateCount;
         report.prospectIds.push(...prospectIds);
+        report.items.push({
+          messageId: summary.id,
+          subject: subject || "Message without a subject",
+          filename: part.filename,
+          status: "processed",
+          prospectsCreated: prospectIds.length,
+          duplicatesDetected: duplicateCount,
+          optimized: prepared.optimized,
+          detail:
+            prospectIds.length === 0
+              ? "OCR completed without creating a prospect."
+              : `Created ${prospectIds.length} review record${prospectIds.length === 1 ? "" : "s"}.`,
+        });
       } catch (error) {
-        report.errors.push(
-          `${part.filename}: ${
-            error instanceof Error ? error.message : "Import failed."
-          }`,
-        );
+        const detail =
+          error instanceof Error ? error.message : "Import failed.";
+        report.errors.push(`${part.filename}: ${detail}`);
+        report.items.push({
+          messageId: summary.id,
+          subject: subject || "Message without a subject",
+          filename: part.filename,
+          status: "failed",
+          prospectsCreated: 0,
+          duplicatesDetected: 0,
+          optimized: false,
+          detail,
+        });
       }
     }
   }

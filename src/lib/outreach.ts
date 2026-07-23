@@ -1,6 +1,8 @@
 import {
   getLandingPageUrl,
   getHostedQrUrl,
+  getOptOutUrl,
+  getOutreachComplianceContact,
   RECRUITER_CONFIG,
 } from "@/config/recruiter";
 
@@ -64,6 +66,7 @@ export function renderEditedHtml(
 ): string {
   const { referralUrl, qrAltText } = RECRUITER_CONFIG;
   const landingUrl = getLandingPageUrl(audience);
+  const optOutUrl = getOptOutUrl();
   const qrUrl = getHostedQrUrl();
   const paragraphs = body
     .trim()
@@ -78,6 +81,10 @@ export function renderEditedHtml(
         .replaceAll(
           landingUrl,
           `<a href="${landingUrl}">${landingUrl}</a>`,
+        )
+        .replaceAll(
+          optOutUrl,
+          `<a href="${optOutUrl}">${optOutUrl}</a>`,
         ),
     )
     .map((paragraph) => `<p>${paragraph}</p>`)
@@ -154,6 +161,10 @@ export function createCreatorOutreach(context: CreatorOutreachContext) {
   } = RECRUITER_CONFIG;
   const qrUrl = getHostedQrUrl();
   const landingUrl = getLandingPageUrl("creator");
+  const optOutUrl = getOptOutUrl();
+  const { contactEmail, postalAddress } = getOutreachComplianceContact();
+  const complianceAddress =
+    postalAddress || "Mailing address required before sending";
 
   const body = `Hi ${greeting},
 
@@ -176,7 +187,10 @@ ${recruiterRole}
 Referral code: ${referralCode}
 ${landingUrl}
 
-You received this message because a public business contact address was associated with your creator profile. Reply “No thanks” if you do not want additional messages from me.`;
+You received this message because a public business contact address was associated with your creator profile. To stop further outreach, reply "No thanks" or use ${optOutUrl}.
+
+Sender: ${recruiterName}, ${recruiterRole}${contactEmail ? ` · ${contactEmail}` : ""}
+Mailing address: ${complianceAddress}`;
 
   const htmlBody = `<p>Hi ${escapeHtml(greeting)},</p>
 <p>${escapeHtml(personalizedOpening)}</p>
@@ -189,7 +203,8 @@ You received this message because a public business contact address was associat
 <p><a href="${referralUrl}">${referralUrl}</a></p>
 <p>There is no obligation to join or accept campaigns. You can review the platform first and decide whether it is appropriate for you.</p>
 <p>Best,<br><strong>${escapeHtml(recruiterName)}</strong><br>${escapeHtml(recruiterRole)}<br>Referral code: ${escapeHtml(referralCode)}<br><a href="${referralUrl}">${referralUrl}</a></p>
-<p style="font-size:12px;color:#666;">You received this message because a public business contact address was associated with your creator profile. Reply “No thanks” if you do not want additional messages from me.</p>`;
+<p style="font-size:12px;color:#666;">You received this message because a public business contact address was associated with your creator profile. To stop further outreach, reply &quot;No thanks&quot; or <a href="${escapeHtml(optOutUrl)}">use this opt-out form</a>.</p>
+<p style="font-size:12px;color:#666;">Sender: ${escapeHtml(recruiterName)}, ${escapeHtml(recruiterRole)}${contactEmail ? ` · ${escapeHtml(contactEmail)}` : ""}<br>Mailing address: ${escapeHtml(complianceAddress)}</p>`;
 
   const landingHtmlBody = htmlBody.replaceAll(
     `href="${referralUrl}"`,
@@ -247,6 +262,10 @@ export function createBrandOutreach(context: BrandOutreachContext) {
   } = RECRUITER_CONFIG;
   const qrUrl = getHostedQrUrl();
   const landingUrl = getLandingPageUrl("brand");
+  const optOutUrl = getOptOutUrl();
+  const { contactEmail, postalAddress } = getOutreachComplianceContact();
+  const complianceAddress =
+    postalAddress || "Mailing address required before sending";
 
   const body = `Hi ${greeting},
 
@@ -267,7 +286,10 @@ ${recruiterRole}
 Referral code: ${referralCode}
 ${landingUrl}
 
-I may receive a referral bonus from qualifying activity. You received this message because a public business contact address was associated with your organization. Reply “No thanks” if you do not want additional messages from me.`;
+I may receive a referral bonus from qualifying activity. You received this message because a public business contact address was associated with your organization. To stop further outreach, reply "No thanks" or use ${optOutUrl}.
+
+Sender: ${recruiterName}, ${recruiterRole}${contactEmail ? ` · ${contactEmail}` : ""}
+Mailing address: ${complianceAddress}`;
 
   const htmlBody = `<p>Hi ${escapeHtml(greeting)},</p>
 <p>${escapeHtml(personalizedOpening)}</p>
@@ -277,7 +299,8 @@ I may receive a referral bonus from qualifying activity. You received this messa
 <p><a href="${referralUrl}"><img src="${escapeHtml(qrUrl)}" alt="${escapeHtml(qrAltText)}" width="180" height="180" /></a></p>
 <p><a href="${referralUrl}">${referralUrl}</a></p>
 <p>Best,<br><strong>${escapeHtml(recruiterName)}</strong><br>${escapeHtml(recruiterRole)}<br>Referral code: ${escapeHtml(referralCode)}</p>
-<p style="font-size:12px;color:#666;">I may receive a referral bonus from qualifying activity. You received this message because a public business contact address was associated with your organization. Reply “No thanks” if you do not want additional messages from me.</p>`;
+<p style="font-size:12px;color:#666;">I may receive a referral bonus from qualifying activity. You received this message because a public business contact address was associated with your organization. To stop further outreach, reply &quot;No thanks&quot; or <a href="${escapeHtml(optOutUrl)}">use this opt-out form</a>.</p>
+<p style="font-size:12px;color:#666;">Sender: ${escapeHtml(recruiterName)}, ${escapeHtml(recruiterRole)}${contactEmail ? ` · ${escapeHtml(contactEmail)}` : ""}<br>Mailing address: ${escapeHtml(complianceAddress)}</p>`;
 
   const landingHtmlBody = htmlBody.replaceAll(
     `href="${referralUrl}"`,
@@ -322,6 +345,10 @@ export function createTailoredFollowUp(
   const { recruiterName, recruiterRole, referralCode } = RECRUITER_CONFIG;
   const audience = context.leadType === "BRAND" ? "brand" : "creator";
   const landingUrl = getLandingPageUrl(audience);
+  const optOutUrl = getOptOutUrl();
+  const { contactEmail, postalAddress } = getOutreachComplianceContact();
+  const complianceAddress =
+    postalAddress || "Mailing address required before sending";
   const subject =
     followUpNumber === 1
       ? context.leadType === "BRAND"
@@ -354,7 +381,10 @@ ${recruiterName}
 ${recruiterRole}
 Referral code: ${referralCode}
 
-Reply "No thanks" if you do not want additional messages from me.`;
+To stop further outreach, reply "No thanks" or use ${optOutUrl}.
+
+Sender: ${recruiterName}, ${recruiterRole}${contactEmail ? ` · ${contactEmail}` : ""}
+Mailing address: ${complianceAddress}`;
   return {
     subject,
     body,

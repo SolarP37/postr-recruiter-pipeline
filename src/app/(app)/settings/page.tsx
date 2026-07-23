@@ -5,7 +5,14 @@ import { getSendingMode, RECRUITER_CONFIG } from "@/config/recruiter";
 import { hasGmailCaptureScope } from "@/lib/gmail";
 
 export default async function SettingsPage() {
-  const google = await db.oAuthToken.findUnique({ where: { provider: "google" } });
+  const [google, lastBackup, recentOperationalErrors] = await Promise.all([
+    db.oAuthToken.findUnique({ where: { provider: "google" } }),
+    db.auditEvent.findFirst({
+      where: { action: "BACKUP_COMPLETED" },
+      orderBy: { createdAt: "desc" },
+    }),
+    db.auditEvent.count({ where: { action: "OPERATIONAL_ERROR" } }),
+  ]);
   const googleConfigured = Boolean(
     process.env.GOOGLE_CLIENT_ID &&
     process.env.GOOGLE_CLIENT_SECRET &&
@@ -29,6 +36,9 @@ export default async function SettingsPage() {
     ["Gmail capture access", hasGmailCaptureScope(google?.scope) ? "Granted" : "Reconnect required"],
     ["Recruiter", `${RECRUITER_CONFIG.recruiterName} · ${RECRUITER_CONFIG.referralCode}`],
     ["Outreach mode", getSendingMode().replaceAll("_", " ")],
+    ["Last private backup", lastBackup ? lastBackup.createdAt.toLocaleString() : "Not completed yet"],
+    ["Operational errors recorded", String(recentOperationalErrors)],
+    ["External error alerts", process.env.OPERATIONS_ALERT_WEBHOOK_URL ? "Configured" : "Not configured"],
   ];
   return (
     <main className="page-shell">

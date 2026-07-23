@@ -26,6 +26,9 @@ type ProspectActionsProps = {
   followerCountVerified: boolean;
   qualificationStatus: string;
   qualificationEvidenceUrl: string | null;
+  outreachCountryCode: string | null;
+  outreachPermissionBasis: string;
+  outreachPermissionEvidence: string | null;
   notes: string | null;
   status: string;
   hasScreenshot: boolean;
@@ -54,6 +57,9 @@ export function ProspectActions({
   followerCountVerified,
   qualificationStatus,
   qualificationEvidenceUrl,
+  outreachCountryCode,
+  outreachPermissionBasis,
+  outreachPermissionEvidence,
   notes,
   status,
   hasScreenshot,
@@ -122,6 +128,9 @@ export function ProspectActions({
               followerCountVerified: data.get("followerCountVerified") === "on",
               qualificationStatus: data.get("qualificationStatus"),
               qualificationEvidenceUrl: data.get("qualificationEvidenceUrl"),
+              outreachCountryCode: data.get("outreachCountryCode"),
+              outreachPermissionBasis: data.get("outreachPermissionBasis"),
+              outreachPermissionEvidence: data.get("outreachPermissionEvidence"),
               notes: data.get("notes"),
             });
           }}
@@ -236,6 +245,21 @@ export function ProspectActions({
             Exact follower count verified from the public source
           </label>
           <input className="field" name="qualificationEvidenceUrl" maxLength={2048} defaultValue={qualificationEvidenceUrl || ""} placeholder="Qualification evidence URL" />
+          <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
+            <p className="font-semibold text-amber-950">Outreach permission review</p>
+            <p className="mt-1 text-xs text-amber-900">Required before a Gmail draft can be created. Use the recipient&apos;s country and retain a link or note showing why outreach is permitted.</p>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              <input className="field" name="outreachCountryCode" maxLength={2} defaultValue={outreachCountryCode || ""} placeholder="Country code, e.g. US" />
+              <select className="field" name="outreachPermissionBasis" defaultValue={outreachPermissionBasis}>
+                <option value="UNKNOWN">Permission not reviewed</option>
+                <option value="EXPRESS_CONSENT">Express consent</option>
+                <option value="EXISTING_BUSINESS_RELATIONSHIP">Existing business relationship</option>
+                <option value="CORPORATE_BUSINESS_CONTACT">Corporate business contact</option>
+                <option value="PUBLICLY_LISTED_BUSINESS_CONTACT">Publicly listed business contact</option>
+              </select>
+            </div>
+            <input className="field mt-3" name="outreachPermissionEvidence" maxLength={2048} defaultValue={outreachPermissionEvidence || ""} placeholder="Permission evidence URL or concise review note" />
+          </div>
           <textarea
             className="field"
             name="notes"

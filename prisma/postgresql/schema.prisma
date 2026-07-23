@@ -44,6 +44,20 @@ enum LeadType {
   BRAND
 }
 
+enum DeliveryAttemptStatus {
+  STARTED
+  CONFIRMED
+  AMBIGUOUS
+}
+
+enum OutreachPermissionBasis {
+  UNKNOWN
+  EXPRESS_CONSENT
+  EXISTING_BUSINESS_RELATIONSHIP
+  CORPORATE_BUSINESS_CONTACT
+  PUBLICLY_LISTED_BUSINESS_CONTACT
+}
+
 model Prospect {
   id                       String              @id @default(cuid())
   createdAt                DateTime            @default(now())
@@ -73,6 +87,10 @@ model Prospect {
   locationEvidenceUrl      String?
   timeZone                 String?
   preferredSendHourLocal   Int                 @default(10)
+  outreachCountryCode      String?
+  outreachPermissionBasis  OutreachPermissionBasis @default(UNKNOWN)
+  outreachPermissionEvidence String?
+  outreachPermissionCheckedAt DateTime?
   followerCount            Int?
   followerCountVerified    Boolean             @default(false)
   qualificationStatus      QualificationStatus @default(NEEDS_REVIEW)
@@ -106,22 +124,38 @@ model Prospect {
 }
 
 model OutreachMessage {
-  id             String         @id @default(cuid())
-  prospectId     String
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
-  subject        String
-  body           String
-  htmlBody       String?
-  followUpNumber Int            @default(0)
-  approvalStatus ApprovalStatus @default(PENDING)
-  gmailDraftId   String?
-  scheduledFor   DateTime?
-  sentAt         DateTime?
-  prospect       Prospect       @relation(fields: [prospectId], references: [id], onDelete: Cascade)
+  id              String           @id @default(cuid())
+  prospectId      String
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  subject         String
+  body            String
+  htmlBody        String?
+  followUpNumber  Int              @default(0)
+  approvalStatus  ApprovalStatus   @default(PENDING)
+  gmailDraftId    String?
+  scheduledFor    DateTime?
+  sentAt          DateTime?
+  prospect        Prospect         @relation(fields: [prospectId], references: [id], onDelete: Cascade)
+  deliveryAttempt DeliveryAttempt?
 
   @@index([prospectId])
   @@index([scheduledFor])
+}
+
+model DeliveryAttempt {
+  id                String                @id @default(cuid())
+  outreachMessageId String                @unique
+  provider          String                @default("gmail")
+  status            DeliveryAttemptStatus @default(STARTED)
+  providerMessageId String?
+  errorMessage      String?
+  startedAt         DateTime              @default(now())
+  completedAt       DateTime?
+  updatedAt         DateTime              @updatedAt
+  outreachMessage   OutreachMessage       @relation(fields: [outreachMessageId], references: [id], onDelete: Cascade)
+
+  @@index([status, startedAt])
 }
 
 model SourceAsset {

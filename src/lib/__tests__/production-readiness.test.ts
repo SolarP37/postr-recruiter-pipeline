@@ -22,6 +22,9 @@ const readyEnvironment: ProductionEnvironment = {
   GOOGLE_REDIRECT_URI:
     "https://preview.example.com/api/auth/google/callback",
   TOKEN_ENCRYPTION_KEY: Buffer.alloc(32, 7).toString("base64"),
+  OUTREACH_CONTACT_EMAIL: "recruiter@example.com",
+  OUTREACH_POSTAL_ADDRESS: "123 Example Street, Example City, NY 10001",
+  CRON_SECRET: "0123456789abcdef0123456789abcdef",
 };
 
 describe("production readiness", () => {

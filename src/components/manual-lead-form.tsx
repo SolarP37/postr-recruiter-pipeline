@@ -1,12 +1,44 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export function ManualLeadForm() {
   const router = useRouter();
+  const formRef = useRef<HTMLFormElement>(null);
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
+  const [inspecting, setInspecting] = useState(false);
+
+  function fill(name: string, value: string | null) {
+    if (!value || !formRef.current) return;
+    const field = formRef.current.elements.namedItem(name);
+    if (field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement) field.value = value;
+  }
+
+  async function inspectUrl() {
+    const field = formRef.current?.elements.namedItem("inspectionUrl");
+    const url = field instanceof HTMLInputElement ? field.value.trim() : "";
+    if (!url) return setMessage("Enter a public profile or business-page URL.");
+    setInspecting(true);
+    setMessage("");
+    const response = await fetch("/api/prospects/inspect-url", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ url }),
+    });
+    const result = await response.json();
+    setInspecting(false);
+    if (!response.ok) return setMessage(result.error || "The page could not be inspected.");
+    fill("email", result.email);
+    fill("displayName", result.title);
+    fill("businessWebsite", result.url);
+    fill("sourcePlatform", result.sourcePlatform);
+    fill("sourceUrl", result.url);
+    fill("personalizationHook", result.description);
+    fill("personalizationSourceUrl", result.url);
+    setMessage(result.email ? "Public page inspected. Verify the extracted email and context, then save it for review." : "Page context was found, but no public email was visible. Add a verified public business email before saving.");
+  }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -57,7 +89,15 @@ export function ManualLeadForm() {
   }
 
   return (
-    <form className="card mt-6 grid gap-4 p-6" onSubmit={submit}>
+    <form ref={formRef} className="card mt-6 grid gap-4 p-6" onSubmit={submit}>
+      <section className="rounded-2xl border border-blue-200 bg-blue-50 p-4">
+        <h2 className="font-semibold text-blue-950">Start with a public URL</h2>
+        <p className="mt-1 text-sm text-blue-900">Paste a creator profile or brand website. The page inspector copies a visibly published email and context into this form; you verify everything before any draft is created.</p>
+        <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+          <input className="field flex-1 bg-white" name="inspectionUrl" type="url" placeholder="https://example.com/profile" />
+          <button className="button-secondary shrink-0" type="button" disabled={inspecting} onClick={inspectUrl}>{inspecting ? "Inspecting page…" : "Inspect URL"}</button>
+        </div>
+      </section>
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="field-label">
           Lead type

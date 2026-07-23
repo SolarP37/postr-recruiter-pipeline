@@ -5,6 +5,7 @@ import { requireApiSession } from "@/lib/api-auth";
 import { audit } from "@/lib/audit";
 import { db } from "@/lib/db";
 import { connectedGoogleClient, gmailRawMessage } from "@/lib/gmail";
+import { reviewOutreachPermission } from "@/lib/outreach-compliance";
 import { canCreateGmailDraft } from "@/lib/prospect-guards";
 import { requireSameOrigin } from "@/lib/request-security";
 
@@ -15,10 +16,26 @@ export async function POST(request: Request) {
   const unauthorized = await requireApiSession(); if (unauthorized) return unauthorized;
   const parsed = schema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Message is required." }, { status: 400 });
+  if (!process.env.OUTREACH_POSTAL_ADDRESS?.trim()) {
+    return NextResponse.json(
+      {
+        error:
+          "Configure the sender's valid postal address before creating a Gmail outreach draft.",
+      },
+      { status: 409 },
+    );
+  }
   const message = await db.outreachMessage.findUnique({ where: { id: parsed.data.messageId }, include: { prospect: true } });
   if (!message || !message.prospect.email) return NextResponse.json({ error: "Outreach message not found." }, { status: 404 });
   if (message.gmailDraftId) return NextResponse.json({ error: "A Gmail draft already exists." }, { status: 409 });
   const suppressed = message.prospect.normalizedEmail ? await db.suppressionEntry.findUnique({ where: { normalizedEmail: message.prospect.normalizedEmail } }) : null;
+  const compliance = reviewOutreachPermission({
+    countryCode: message.prospect.outreachCountryCode,
+    permissionBasis: message.prospect.outreachPermissionBasis,
+    evidence: message.prospect.outreachPermissionEvidence,
+    checkedAt: message.prospect.outreachPermissionCheckedAt,
+  });
+  if (!compliance.allowed) return NextResponse.json({ error: compliance.reason }, { status: 409 });
   const guard = canCreateGmailDraft({ approvalStatus: message.approvalStatus, sentAt: message.sentAt, suppressed: Boolean(suppressed), prospectDoNotContact: message.prospect.doNotContact });
   if (!guard.allowed) return NextResponse.json({ error: guard.reason }, { status: 409 });
   const auth = await connectedGoogleClient();

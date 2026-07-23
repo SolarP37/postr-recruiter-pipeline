@@ -23,6 +23,8 @@ describe("Patrick Conlon creator outreach", () => {
     expect(message.subject).toBe("A creator opportunity for Avery");
     expect(message.body).toContain("noticed you share practical weekday recipes.");
     expect(message.body).toContain("https://recruit.example.com/creators");
+    expect(message.body).toContain("https://recruit.example.com/opt-out");
+    expect(message.body).toContain("Mailing address:");
     expect(message.htmlBody).toContain(
       'href="https://recruit.example.com/creators"',
     );
@@ -76,6 +78,7 @@ describe("Patrick Conlon brand outreach", () => {
     expect(message.body).toContain("launch campaigns and connect with creators");
     expect(message.body).not.toContain("1,000 followers");
     expect(message.body).toContain("https://recruit.example.com/brands");
+    expect(message.body).toContain("https://recruit.example.com/opt-out");
     expect(message.htmlBody).toContain(
       'href="https://recruit.example.com/brands"',
     );
@@ -139,6 +142,6 @@ describe("tailored outreach routing", () => {
     expect(first.body).toContain("no obligation");
     expect(final.subject).toContain("Final note");
     expect(final.body).toContain("I will not send another reminder");
-    expect(final.body).toContain('Reply "No thanks"');
+    expect(final.body).toMatch(/reply "No thanks"/i);
   });
 });
