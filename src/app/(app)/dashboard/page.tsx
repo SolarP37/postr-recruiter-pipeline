@@ -2,6 +2,7 @@ import Image from "next/image";
 import { db } from "@/lib/db";
 import { RECRUITER_CONFIG, getSendingMode } from "@/config/recruiter";
 import { RecruiterCardActions } from "@/components/recruiter-card-actions";
+import { buildDashboardFunnel } from "@/lib/dashboard-funnel";
 
 const metricDefinitions = [
   ["Screenshots processed", "assets"],
@@ -53,16 +54,7 @@ export default async function DashboardPage() {
     db.auditEvent.count({ where: { action: "REFERRAL_CLICK_BRAND" } }),
   ]);
   const values = { assets, emails, review, qualified, approved, drafts, sent, replied, interested, referrals, joined, optedOut, suppressed };
-  const funnel = [
-    ["Captured", total],
-    ["Reviewed", Math.max(total - review, 0)],
-    ["Approved", approved + drafts + sent + replied + interested + referrals + joined],
-    ["Drafted", drafts],
-    ["Sent", sent + replied + interested + referrals + joined],
-    ["Replied", replied + interested + referrals + joined],
-    ["Referral sent", referrals],
-    ["Joined", joined],
-  ];
+  const funnel = buildDashboardFunnel({ total, review, approved, drafts, sent, replied, referrals, joined });
 
   return (
     <main className="page-shell">

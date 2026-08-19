@@ -1,0 +1,99 @@
+import { describe, expect, it } from "vitest";
+import { MemoryAgentLogger } from "@/lib/agents/logger";
+import type { AgentRuntimeServices } from "@/lib/agents/runtime-services";
+import { missionControlTaskSchema } from "@/lib/agents/task-contracts";
+import { AgentTaskError } from "@/lib/agents/types";
+import { createMissionControl } from "@/lib/mission-control";
+import { MemoryJobRepository } from "@/lib/orchestrator/memory-repository";
+
+class FakeRuntime implements AgentRuntimeServices {
+  calls: string[] = [];
+  outreachError: Error | null = null;
+
+  async evaluateQualification(prospectId: string) {
+    this.calls.push(`qualification:${prospectId}`);
+    return { prospectId, recommendation: "NEEDS_REVIEW", applied: false };
+  }
+
+  async prepareOutreach(prospectId: string) {
+    this.calls.push(`outreach:${prospectId}`);
+    if (this.outreachError) throw this.outreachError;
+    return { prospectId, approvalStatus: "PENDING", sent: false };
+  }
+
+  async analyticsSnapshot() {
+    this.calls.push("analytics");
+    return { prospects: 1 };
+  }
+}
+
+function setup(runtime = new FakeRuntime()) {
+  const jobs = new MemoryJobRepository();
+  const logger = new MemoryAgentLogger();
+  const missionControl = createMissionControl({ jobs, logger, runtime });
+  return { jobs, logger, missionControl, runtime };
+}
+
+describe("Sprint 2 controlled agent integration", () => {
+  it("allows only the three explicit human-triggered task contracts", () => {
+    expect(missionControlTaskSchema.safeParse({ type: "qualification.evaluate", prospectId: "prospect-1" }).success).toBe(true);
+    expect(missionControlTaskSchema.safeParse({ type: "outreach.prepare", prospectId: "prospect-1" }).success).toBe(true);
+    expect(missionControlTaskSchema.safeParse({ type: "analytics.snapshot" }).success).toBe(true);
+    expect(missionControlTaskSchema.safeParse({ type: "gmail.send", prospectId: "prospect-1" }).success).toBe(false);
+    expect(missionControlTaskSchema.safeParse({ type: "outreach.prepare" }).success).toBe(false);
+  });
+
+  it("routes qualification to a recommendation-only runtime adapter", async () => {
+    const { missionControl, runtime, jobs } = setup();
+    await missionControl.enqueue({
+      agentId: "creator-qualification",
+      taskType: "qualification.evaluate",
+      payload: { prospectId: "prospect-1" },
+      requiresApproval: false,
+    });
+    const result = await missionControl.runNext(new Date(Date.now() + 1_000));
+    expect(result?.status).toBe("COMPLETED");
+    expect(runtime.calls).toEqual(["qualification:prospect-1"]);
+    expect((await jobs.counts()).COMPLETED).toBe(1);
+  });
+
+  it("routes analytics through a read-only snapshot task", async () => {
+    const { missionControl, runtime } = setup();
+    await missionControl.enqueue({ agentId: "analytics", taskType: "analytics.snapshot", requiresApproval: false });
+    expect((await missionControl.runNext(new Date(Date.now() + 1_000)))?.status).toBe("COMPLETED");
+    expect(runtime.calls).toEqual(["analytics"]);
+  });
+
+  it("does not retry outreach policy failures", async () => {
+    const runtime = new FakeRuntime();
+    runtime.outreachError = new AgentTaskError("Prospect must be approved first.", false);
+    const { missionControl, jobs, logger } = setup(runtime);
+    await missionControl.enqueue({
+      agentId: "email-generation",
+      taskType: "outreach.prepare",
+      payload: { prospectId: "prospect-1" },
+      maxAttempts: 3,
+      requiresApproval: false,
+    });
+    const result = await missionControl.runNext(new Date(Date.now() + 1_000));
+    expect(result?.status).toBe("FAILED");
+    expect(jobs.jobs[0].attempts).toBe(1);
+    expect(logger.entries.map((entry) => entry.event)).toEqual(["STARTED", "FAILED"]);
+  });
+
+  it("keeps transient runtime failures eligible for a bounded retry", async () => {
+    const runtime = new FakeRuntime();
+    runtime.outreachError = new Error("Temporary database outage");
+    const { missionControl, jobs } = setup(runtime);
+    await missionControl.enqueue({
+      agentId: "email-generation",
+      taskType: "outreach.prepare",
+      payload: { prospectId: "prospect-1" },
+      maxAttempts: 2,
+      requiresApproval: false,
+    });
+    const result = await missionControl.runNext(new Date(Date.now() + 1_000));
+    expect(result?.status).toBe("RETRY_SCHEDULED");
+    expect((await jobs.counts()).RETRY_SCHEDULED).toBe(1);
+  });
+});

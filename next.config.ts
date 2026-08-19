@@ -9,6 +9,9 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // OneDrive and parallel local builds can leave `.next` undeletable. Keep the
+  // deployment default while allowing validation to use an isolated cache.
+  distDir: process.env.NEXT_BUILD_DIR?.trim() || ".next",
   async headers() {
     return [
       {

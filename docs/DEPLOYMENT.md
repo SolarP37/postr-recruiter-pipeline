@@ -139,6 +139,13 @@ intentionally defaults to manual sending from Gmail.
 - `OUTREACH_POSTAL_ADDRESS` - a real sender postal address; Gmail outreach
   draft creation is blocked when absent
 - `CRON_SECRET` - at least 16 random characters; authorizes the daily backup
+- `AGENT_MAX_JOBS_PER_RUN` - bounded from 1 to 10; defaults to 3
+- `AGENT_STALE_LOCK_MINUTES` - bounded from 5 to 120; defaults to 15
+- `AGENT_QUEUE_LIMIT` - bounded from 10 to 1000; defaults to 100
+- `AGENT_<NORMALIZED_ID>_MAX_PER_RUN` - optional per-agent worker cap from 1
+  to 10; defaults to 1 (for example `AGENT_ANALYTICS_MAX_PER_RUN`)
+- `AGENT_<NORMALIZED_ID>_QUEUE_LIMIT` - optional per-agent active queue cap
+  from 1 to 250; defaults to 25
 - `OPERATIONS_ALERT_WEBHOOK_URL` - optional generic alert receiver; alerts do
   not contain prospect data
 - `GOOGLE_SITE_VERIFICATION` - after Search Console issues a verification token
@@ -157,6 +164,9 @@ Use the unescaped value in Vercel’s environment-variable UI.
   supervised operation: provision a clean database, validate the snapshot,
   import parent tables before dependent tables, compare counts, then switch
   traffic only after an application smoke test.
+- Vercel invokes `/api/cron/agents` daily. It recovers expired worker locks,
+  processes only explicitly approved jobs, and handles at most the configured
+  batch size. It cannot create discovery jobs or send email.
 - Configure `OPERATIONS_ALERT_WEBHOOK_URL` for capture/backup failure alerts.
   The Settings page shows the latest successful backup and recent errors.
 - Once per quarter, restore the latest backup into a temporary database and

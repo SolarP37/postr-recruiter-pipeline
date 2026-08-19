@@ -76,14 +76,16 @@ Acceptance criteria:
   original.
 - [x] Preserve readable email and profile text with a minimum 1,700-pixel
   long edge in the final compression attempt.
-- [ ] Add automated cross-browser tests for unsupported, oversized, converted,
+- [x] Add automated cross-browser tests for unsupported, oversized, converted,
   and compressed files.
 - [x] Keep server-side signature and size validation as the final trust boundary.
 
 The capture page now accepts PNG, JPEG, WebP, HEIC, and HEIF selections up to
 20 MB. Files requiring preparation are converted locally to JPEG and must pass
 the existing 4 MB MIME/signature validation before OCR. Manual live-browser
-checks cover normal and oversized/compressed fixtures. HEIC/HEIF support still
+checks cover normal and oversized/compressed fixtures. Automated capability
+tests exercise Chromium bitmap decoding, Safari image-element fallback, and
+unsupported-container guidance. HEIC/HEIF support still
 depends on the selecting browser's decoder; unsupported devices receive an
 export-to-JPEG instruction.
 

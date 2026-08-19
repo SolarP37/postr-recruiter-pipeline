@@ -57,6 +57,29 @@ enum OutreachPermissionBasis {
   PUBLICLY_LISTED_BUSINESS_CONTACT
 }
 
+enum AgentJobStatus {
+  QUEUED
+  RUNNING
+  COMPLETED
+  FAILED
+  RETRY_SCHEDULED
+  CANCELLED
+}
+
+enum AgentJobPriority {
+  LOW
+  NORMAL
+  HIGH
+  CRITICAL
+}
+
+enum AgentLogEvent {
+  STARTED
+  COMPLETED
+  FAILED
+  RETRIED
+}
+
 model Prospect {
   id                       String              @id @default(cuid())
   createdAt                DateTime            @default(now())
@@ -198,4 +221,99 @@ model OAuthToken {
   expiryDate            DateTime?
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
+}
+
+model AgentJob {
+  id           String             @id @default(cuid())
+  agentId      String
+  agentName    String
+  taskType     String
+  payload      String?
+  result       String?
+  status       AgentJobStatus     @default(QUEUED)
+  priority     AgentJobPriority   @default(NORMAL)
+  attempts     Int                @default(0)
+  maxAttempts  Int                @default(3)
+  requiresApproval Boolean        @default(true)
+  approvedAt   DateTime?
+  approvalSource String?
+  scheduledFor DateTime           @default(now())
+  startedAt    DateTime?
+  completedAt  DateTime?
+  lastError    String?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  queueItem    AgentQueueItem?
+  logs         AgentLog[]
+  history      AgentTaskHistory[]
+  metrics      AgentExecutionMetric[]
+
+  @@index([status, priority, scheduledFor])
+  @@index([agentId, createdAt])
+  @@index([requiresApproval, approvedAt])
+}
+
+model AgentQueueItem {
+  id          String           @id @default(cuid())
+  agentJobId  String           @unique
+  priority    AgentJobPriority @default(NORMAL)
+  priorityRank Int             @default(1)
+  availableAt DateTime         @default(now())
+  lockedAt    DateTime?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  job         AgentJob         @relation(fields: [agentJobId], references: [id], onDelete: Cascade)
+
+  @@index([availableAt, priorityRank])
+}
+
+model AgentLog {
+  id         String        @id @default(cuid())
+  agentJobId String?
+  agentId    String
+  agentName  String
+  taskId     String?
+  event      AgentLogEvent
+  message    String
+  durationMs Int?
+  retryCount Int           @default(0)
+  error      String?
+  timestamp  DateTime      @default(now())
+  job        AgentJob?     @relation(fields: [agentJobId], references: [id], onDelete: SetNull)
+
+  @@index([agentId, timestamp])
+  @@index([agentJobId, timestamp])
+}
+
+model AgentTaskHistory {
+  id          String         @id @default(cuid())
+  agentJobId  String
+  agentId     String
+  status      AgentJobStatus
+  attempt     Int
+  startedAt   DateTime
+  completedAt DateTime?
+  durationMs  Int?
+  error       String?
+  createdAt   DateTime       @default(now())
+  job         AgentJob       @relation(fields: [agentJobId], references: [id], onDelete: Cascade)
+
+  @@index([agentJobId, attempt])
+  @@index([agentId, createdAt])
+}
+
+model AgentExecutionMetric {
+  id              String   @id @default(cuid())
+  agentJobId      String
+  agentId         String
+  agentName       String
+  executionTimeMs Int
+  successful      Boolean
+  retryCount      Int      @default(0)
+  errorCount      Int      @default(0)
+  recordedAt      DateTime @default(now())
+  job             AgentJob @relation(fields: [agentJobId], references: [id], onDelete: Cascade)
+
+  @@index([agentId, recordedAt])
+  @@index([successful, recordedAt])
 }
