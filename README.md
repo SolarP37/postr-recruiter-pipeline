@@ -44,6 +44,12 @@ Tailwind CSS, and a mock-first integration architecture.
   same protected OCR review workflow as direct uploads
 - Draft-only delivery default with explicit manual/batch send mode guards
 - Automated unit and end-to-end mock workflow tests
+- Governed Mission Control with approval records, per-agent limits, schedules,
+  stale-lock recovery, health indicators, and execution analytics
+- Disabled-by-default read-only Brave, public-page, and owner-configured Apify
+  dataset research adapters that never create or approve prospects
+- Controlled follow-up preparation that enforces stop conditions and creates
+  pending internal drafts only
 - Environment variable template added without secrets
 - Local lint, type-check, test, build, and smoke-test commands available
 

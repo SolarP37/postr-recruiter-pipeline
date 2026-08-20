@@ -3,14 +3,10 @@ import { z } from "zod";
 import { requireApiSession } from "@/lib/api-auth";
 import { audit } from "@/lib/audit";
 import { db } from "@/lib/db";
+import { FollowUpPreparationError, prepareFollowUpDraft } from "@/lib/follow-up-preparation";
 import { EnvironmentPostrAdapter } from "@/lib/postr";
 import { canApplyTrackingAction } from "@/lib/lifecycle";
-import { createTailoredFollowUp } from "@/lib/outreach";
-import {
-  formatScheduledTime,
-  suggestedSendAt,
-} from "@/lib/outreach-schedule";
-import { followUpEligibility } from "@/lib/prospect-guards";
+import { formatScheduledTime } from "@/lib/outreach-schedule";
 import { requireSameOrigin } from "@/lib/request-security";
 
 const schema = z.object({
@@ -116,83 +112,20 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     return NextResponse.json({ message: "Follow-up canceled." });
   }
   if (parsed.data.action === "schedule_follow_up") {
-    const activeDraft = prospect.outreachMessages.find(
-      (message) =>
-        !message.sentAt && message.approvalStatus !== "REJECTED",
-    );
-    if (activeDraft) {
-      return NextResponse.json(
-        { error: "Review the existing outreach draft before scheduling another attempt." },
-        { status: 409 },
-      );
+    try {
+      const result = await prepareFollowUpDraft(id);
+      return NextResponse.json({
+        message: `Attempt ${result.followUpNumber + 1} draft created for review. Suggested window: ${formatScheduledTime(
+          result.scheduledFor,
+          prospect.timeZone,
+        )}${result.usedTimeZone ? ` (${prospect.timeZone})` : " (timezone not recorded)"}.`,
+      });
+    } catch (error) {
+      if (error instanceof FollowUpPreparationError) {
+        return NextResponse.json({ error: error.message }, { status: error.status });
+      }
+      throw error;
     }
-    const sentMessages = prospect.outreachMessages.filter(
-      (message) => message.sentAt,
-    );
-    const lastSent = [...sentMessages]
-      .sort(
-        (left, right) =>
-          (right.sentAt?.getTime() || 0) -
-          (left.sentAt?.getTime() || 0),
-      )[0];
-    const followUpStage = sentMessages.reduce(
-      (highest, message) =>
-        Math.max(highest, message.followUpNumber),
-      0,
-    );
-    const eligibility = followUpEligibility({
-      sentAt: lastSent?.sentAt || null,
-      replyReceivedAt: prospect.replyReceivedAt,
-      hardBouncedAt: prospect.hardBouncedAt,
-      optedOutAt: prospect.optedOutAt,
-      joinedAt: prospect.joinedAt,
-      suppressed: prospect.doNotContact,
-      followUpStage,
-    });
-    if (!eligibility.allowed || !eligibility.earliestAt) {
-      return NextResponse.json({ error: eligibility.reason }, { status: 409 });
-    }
-    const nextFollowUpNumber = (followUpStage + 1) as 1 | 2;
-    const suggestion = suggestedSendAt({
-      earliestAt: eligibility.earliestAt,
-      timeZone: prospect.timeZone,
-      preferredHourLocal: prospect.preferredSendHourLocal,
-    });
-    const content = createTailoredFollowUp(
-      prospect,
-      nextFollowUpNumber,
-    );
-    const [, draft] = await db.$transaction([
-      db.prospect.update({
-        where: { id },
-        data: {
-          nextFollowUpAt: suggestion.scheduledFor,
-        },
-      }),
-      db.outreachMessage.create({
-        data: {
-          prospectId: id,
-          subject: content.subject,
-          body: content.body,
-          htmlBody: content.htmlBody,
-          followUpNumber: nextFollowUpNumber,
-          scheduledFor: suggestion.scheduledFor,
-        },
-      }),
-    ]);
-    await audit("FOLLOW_UP_SCHEDULED", "OutreachMessage", draft.id, {
-      prospectId: id,
-      followUpNumber: nextFollowUpNumber,
-      scheduledFor: suggestion.scheduledFor.toISOString(),
-      timeZone: prospect.timeZone,
-      reviewRequired: true,
-    });
-    return NextResponse.json({
-      message: `Attempt ${nextFollowUpNumber + 1} draft created for review. Suggested window: ${formatScheduledTime(
-        suggestion.scheduledFor,
-        prospect.timeZone,
-      )}${suggestion.usedTimeZone ? ` (${prospect.timeZone})` : " (timezone not recorded)"}.`,
-    });
   }
   const transition = canApplyTrackingAction(prospect.status, parsed.data.action);
   if (!transition.allowed) {

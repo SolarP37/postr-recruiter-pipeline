@@ -5,6 +5,7 @@ import { MissionControlActions } from "@/components/mission-control-actions";
 import { getAgentWorkerConfig } from "@/lib/orchestrator/worker-config";
 import { getAgentExecutionPolicy } from "@/lib/orchestrator/worker-config";
 import { buildAgentInsight } from "@/lib/agent-insights";
+import { configuredResearchCapabilities } from "@/lib/research";
 
 const placeholderSections = [
   ["Creator Discovery", "Ready for a Sprint 2 discovery adapter."],
@@ -12,8 +13,6 @@ const placeholderSections = [
   ["Analytics", "Read-only CRM snapshots are available as manual tasks."],
   ["Settings", "Per-agent limits and scheduled execution are active."],
 ] as const;
-
-const connectedAgentIds = new Set(["creator-qualification", "email-generation", "analytics"]);
 
 export default async function MissionControlPage() {
   const now = new Date();
@@ -30,6 +29,15 @@ export default async function MissionControlPage() {
     db.prospect.findMany({ orderBy: { updatedAt: "desc" }, take: 50, select: { id: true, displayName: true, organizationName: true, email: true, leadType: true } }),
   ]);
   const agents = createInitialAgents(new MemoryAgentLogger());
+  const research = configuredResearchCapabilities();
+  const connectedAgentIds = new Set([
+    "creator-qualification",
+    "email-generation",
+    "followup",
+    "analytics",
+    ...(research.brave ? ["creator-discovery"] : []),
+    ...(research.publicPage || research.apify ? ["creator-research"] : []),
+  ]);
   const workerConfig = getAgentWorkerConfig();
   const insights = new Map(agents.map((agent) => [agent.id, buildAgentInsight(agent.id, connectedAgentIds.has(agent.id), insightJobs, metrics, now)]));
   const successfulRuns = metrics.filter((metric) => metric.successful).length;
@@ -44,7 +52,7 @@ export default async function MissionControlPage() {
     <main className="page-shell">
       <p className="eyebrow">AI orchestration</p>
       <h1 className="page-title mt-3">Mission Control</h1>
-      <p className="page-copy">A modular control plane for queued agent work. Sprint 2 enables three human-triggered tasks while discovery and automatic outreach remain disabled.</p>
+      <p className="page-copy">A governed control plane for queued agent work. Read-only research activates only with owner-configured providers; all outreach remains review-only and never sends automatically.</p>
 
       <section className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         {[

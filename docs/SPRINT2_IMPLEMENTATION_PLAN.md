@@ -27,9 +27,18 @@ Authenticated Mission Control controls can enqueue these tasks and manually run 
 
 - Stale worker-lock recovery and scheduled worker invocation. **Completed in increment 2.**
 - Human approval records for executable agent jobs. **Completed in increment 2.**
-- Read-only research adapters using owner-approved providers.
+- Read-only research adapters using owner-approved providers. **Implemented disabled-by-default; credentials and activation remain owner-controlled.**
 - Agent limits, schedules, per-agent health, and expanded analytics. **Completed in increment 3.**
-- Controlled follow-up preparation that reuses the existing three-attempt and stop-condition rules.
+- Controlled follow-up preparation that reuses the existing three-attempt and stop-condition rules. **Completed; output remains pending review and unsent.**
+
+## Increment 4 controls
+
+- Brave discovery uses the official Search API with strict safe search, a ten-result cap, and a ten-second request timeout.
+- Public-page inspection accepts one explicit HTTP(S) URL, retains SSRF and response-size guards, and never writes a prospect.
+- Apify access reads only a single owner-configured dataset; it cannot choose or run Actors, modify tasks, or write dataset records.
+- Research results are stored only as agent-job output for recruiter review. They do not create, approve, or contact prospects.
+- Follow-up preparation reuses the authoritative reply, bounce, opt-out, suppression, active-draft, attempt-count, and spacing rules.
+- Provider adapters remain disabled until their Preview environment flags and protected credentials are configured by the owner.
 
 Automated sending remains out of scope.
 

@@ -10,6 +10,21 @@ class FakeRuntime implements AgentRuntimeServices {
   calls: string[] = [];
   outreachError: Error | null = null;
 
+  async discover(query: string, limit: number) {
+    this.calls.push(`discover:${query}:${limit}`);
+    return { results: [], crmChanged: false };
+  }
+
+  async inspectResearchUrl(url: string) {
+    this.calls.push(`research:${url}`);
+    return { result: { url }, crmChanged: false };
+  }
+
+  async readApifyDataset(limit: number) {
+    this.calls.push(`apify:${limit}`);
+    return { results: [], crmChanged: false };
+  }
+
   async evaluateQualification(prospectId: string) {
     this.calls.push(`qualification:${prospectId}`);
     return { prospectId, recommendation: "NEEDS_REVIEW", applied: false };
@@ -18,6 +33,11 @@ class FakeRuntime implements AgentRuntimeServices {
   async prepareOutreach(prospectId: string) {
     this.calls.push(`outreach:${prospectId}`);
     if (this.outreachError) throw this.outreachError;
+    return { prospectId, approvalStatus: "PENDING", sent: false };
+  }
+
+  async prepareFollowUp(prospectId: string) {
+    this.calls.push(`followup:${prospectId}`);
     return { prospectId, approvalStatus: "PENDING", sent: false };
   }
 
@@ -35,12 +55,40 @@ function setup(runtime = new FakeRuntime()) {
 }
 
 describe("Sprint 2 controlled agent integration", () => {
-  it("allows only the three explicit human-triggered task contracts", () => {
+  it("allows only explicit governed task contracts", () => {
+    expect(missionControlTaskSchema.safeParse({ type: "discovery.search", query: "fitness creators Austin" }).success).toBe(true);
+    expect(missionControlTaskSchema.safeParse({ type: "research.inspect", url: "https://example.com/profile" }).success).toBe(true);
+    expect(missionControlTaskSchema.safeParse({ type: "research.apify_dataset" }).success).toBe(true);
     expect(missionControlTaskSchema.safeParse({ type: "qualification.evaluate", prospectId: "prospect-1" }).success).toBe(true);
     expect(missionControlTaskSchema.safeParse({ type: "outreach.prepare", prospectId: "prospect-1" }).success).toBe(true);
+    expect(missionControlTaskSchema.safeParse({ type: "followup.prepare", prospectId: "prospect-1" }).success).toBe(true);
     expect(missionControlTaskSchema.safeParse({ type: "analytics.snapshot" }).success).toBe(true);
     expect(missionControlTaskSchema.safeParse({ type: "gmail.send", prospectId: "prospect-1" }).success).toBe(false);
     expect(missionControlTaskSchema.safeParse({ type: "outreach.prepare" }).success).toBe(false);
+  });
+
+  it("routes research without requesting a CRM mutation", async () => {
+    const { missionControl, runtime } = setup();
+    await missionControl.enqueue({
+      agentId: "creator-discovery",
+      taskType: "discovery.search",
+      payload: { query: "fitness creators Austin", limit: 3 },
+      requiresApproval: false,
+    });
+    expect((await missionControl.runNext(new Date(Date.now() + 1_000)))?.status).toBe("COMPLETED");
+    expect(runtime.calls).toEqual(["discover:fitness creators Austin:3"]);
+  });
+
+  it("routes follow-up preparation to an unsent review draft", async () => {
+    const { missionControl, runtime } = setup();
+    await missionControl.enqueue({
+      agentId: "followup",
+      taskType: "followup.prepare",
+      payload: { prospectId: "prospect-1" },
+      requiresApproval: false,
+    });
+    expect((await missionControl.runNext(new Date(Date.now() + 1_000)))?.status).toBe("COMPLETED");
+    expect(runtime.calls).toEqual(["followup:prospect-1"]);
   });
 
   it("routes qualification to a recommendation-only runtime adapter", async () => {

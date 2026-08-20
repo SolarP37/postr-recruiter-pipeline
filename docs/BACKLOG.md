@@ -1,8 +1,8 @@
 # Project backlog
 
-## Ready to publish
+## Published preview foundation
 
-### Publish the sprint integration branch
+### Publish the sprint integration branch — completed
 
 The local `agent/sprint-integration` branch contains the completed CI,
 PostgreSQL migration, durable screenshot storage, production readiness,
@@ -16,14 +16,13 @@ Acceptance criteria:
 - Confirm the GitHub Actions `Verify` job passes.
 - Review and merge only after the full diff is approved.
 
-Current blocker: GitHub CLI authentication reached GitHub's OAuth authorization
-screen, which requested repository and workflow permissions. Those new account
-permissions were denied under the autonomous-work guardrails. An owner must
-explicitly authorize GitHub CLI before the branch can be pushed.
+The `agent/sprint-integration` branch is published, draft PR #8 is open, and
+Vercel is connected to the branch. Merge to `main` remains an explicit owner
+decision after final review.
 
 ## Preview infrastructure
 
-### Provision persistent PostgreSQL
+### Provision persistent PostgreSQL — preview completed
 
 Acceptance criteria:
 
@@ -33,10 +32,11 @@ Acceptance criteria:
 - Apply migrations from a trusted environment.
 - Test backup and restore procedures.
 
-Current blocker: owner-controlled database credentials and project approval are
-required.
+An owner-controlled Neon PostgreSQL store is connected and migrations through
+`0009_agent_job_approval` are applied. A documented restore rehearsal remains
+before production promotion.
 
-### Provision private screenshot storage
+### Provision private screenshot storage — preview completed
 
 Acceptance criteria:
 
@@ -47,10 +47,10 @@ Acceptance criteria:
   routes.
 - Confirm screenshots are never publicly addressable.
 
-Current blocker: an owner-controlled Vercel project and private Blob store are
-required.
+The private `postr-capture` Blob store is connected to Preview. A fixture
+upload/retrieve/remove acceptance check remains before production promotion.
 
-### Deploy an access-controlled preview
+### Deploy an access-controlled preview — completed
 
 Acceptance criteria:
 
@@ -61,10 +61,26 @@ Acceptance criteria:
 - Complete login, capture, review, draft, tracking, suppression, and opt-out
   smoke tests.
 
-Current blocker: the integration branch must be published and Preview
-infrastructure must exist.
+The protected feature-branch Preview is deployed and password authentication,
+dashboard counts, Mission Control, database connectivity, and private backup
+status have been verified. Production remains unchanged.
 
 ## External integrations
+
+### Configure governed research providers
+
+The code now includes disabled-by-default adapters for official Brave Search,
+single-page public inspection, and reading one owner-configured Apify dataset.
+Research results cannot create or approve prospects. Remaining owner steps are
+account terms/payment choices, protected credential creation, Preview variables,
+and explicit provider activation.
+
+### Configure OpenAI vision
+
+The mock-first OpenAI vision adapter is implemented. Remaining owner steps are
+reviewing current data-handling terms, choosing a usage budget, creating a
+project-scoped key, and adding it to Preview. Keep `VISION_PROVIDER=mock` until
+those steps are complete.
 
 ### Improve phone image compatibility
 
