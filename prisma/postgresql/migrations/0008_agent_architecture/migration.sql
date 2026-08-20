@@ -27,6 +27,7 @@ CREATE TABLE "AgentQueueItem" (
     "id" TEXT NOT NULL,
     "agentJobId" TEXT NOT NULL,
     "priority" "AgentJobPriority" NOT NULL DEFAULT 'NORMAL',
+    "priorityRank" INTEGER NOT NULL DEFAULT 1,
     "availableAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "lockedAt" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
