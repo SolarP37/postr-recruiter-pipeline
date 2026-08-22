@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-type TaskType = "discovery.search" | "research.inspect" | "research.apify_dataset" | "qualification.evaluate" | "outreach.prepare" | "followup.prepare" | "analytics.snapshot";
+type TaskType = "discovery.search" | "brand.discovery.search" | "research.inspect" | "research.apify_dataset" | "qualification.evaluate" | "outreach.prepare" | "followup.prepare" | "analytics.snapshot";
 
 export function MissionControlActions({ prospects }: { prospects: Array<{ id: string; label: string }> }) {
   const router = useRouter();
@@ -14,14 +14,14 @@ export function MissionControlActions({ prospects }: { prospects: Array<{ id: st
   const [scheduledFor, setScheduledFor] = useState("");
   const [busy, setBusy] = useState(false);
   const needsProspect = ["qualification.evaluate", "outreach.prepare", "followup.prepare"].includes(taskType);
-  const needsResearchInput = taskType === "discovery.search" || taskType === "research.inspect";
+  const needsResearchInput = taskType === "discovery.search" || taskType === "brand.discovery.search" || taskType === "research.inspect";
 
   async function queueTask() {
     setBusy(true);
     setMessage("");
     const task = needsProspect
       ? { type: taskType, prospectId: prospectId.trim() }
-      : taskType === "discovery.search"
+      : taskType === "discovery.search" || taskType === "brand.discovery.search"
         ? { type: taskType, query: researchInput.trim(), limit: 5 }
         : taskType === "research.inspect"
           ? { type: taskType, url: researchInput.trim() }
@@ -61,6 +61,7 @@ export function MissionControlActions({ prospects }: { prospects: Array<{ id: st
       <div className="mt-5 grid gap-3 lg:grid-cols-[1fr_1fr_1fr_auto_auto]">
         <select value={taskType} onChange={(event) => setTaskType(event.target.value as TaskType)} className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm">
           <option value="discovery.search">Search public web (Brave)</option>
+          <option value="brand.discovery.search">Find brand partnership programs</option>
           <option value="research.inspect">Inspect one public page</option>
           <option value="research.apify_dataset">Read approved Apify dataset</option>
           <option value="qualification.evaluate">Evaluate creator qualification</option>

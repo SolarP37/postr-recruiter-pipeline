@@ -15,6 +15,8 @@ class FakeRuntime implements AgentRuntimeServices {
     return { results: [], crmChanged: false };
   }
 
+  async discoverBrands(query: string, limit: number) { this.calls.push(`discover-brands:${query}:${limit}`); return { results: [], crmChanged: false }; }
+
   async inspectResearchUrl(url: string) {
     this.calls.push(`research:${url}`);
     return { result: { url }, crmChanged: false };
@@ -41,6 +43,8 @@ class FakeRuntime implements AgentRuntimeServices {
     return { prospectId, approvalStatus: "PENDING", sent: false };
   }
 
+  async evaluateAutonomy(messageId: string, action: "CREATE_GMAIL_DRAFT" | "SEND_INITIAL" | "SEND_FOLLOW_UP") { this.calls.push(`autonomy:${messageId}:${action}`); return { messageId, action, outcome: "REVIEW", executed: false }; }
+
   async analyticsSnapshot() {
     this.calls.push("analytics");
     return { prospects: 1 };
@@ -57,14 +61,30 @@ function setup(runtime = new FakeRuntime()) {
 describe("Sprint 2 controlled agent integration", () => {
   it("allows only explicit governed task contracts", () => {
     expect(missionControlTaskSchema.safeParse({ type: "discovery.search", query: "fitness creators Austin" }).success).toBe(true);
+    expect(missionControlTaskSchema.safeParse({ type: "brand.discovery.search", query: "beauty brands Austin" }).success).toBe(true);
     expect(missionControlTaskSchema.safeParse({ type: "research.inspect", url: "https://example.com/profile" }).success).toBe(true);
     expect(missionControlTaskSchema.safeParse({ type: "research.apify_dataset" }).success).toBe(true);
     expect(missionControlTaskSchema.safeParse({ type: "qualification.evaluate", prospectId: "prospect-1" }).success).toBe(true);
     expect(missionControlTaskSchema.safeParse({ type: "outreach.prepare", prospectId: "prospect-1" }).success).toBe(true);
     expect(missionControlTaskSchema.safeParse({ type: "followup.prepare", prospectId: "prospect-1" }).success).toBe(true);
     expect(missionControlTaskSchema.safeParse({ type: "analytics.snapshot" }).success).toBe(true);
+    expect(missionControlTaskSchema.safeParse({ type: "autonomy.evaluate", messageId: "message-1", action: "SEND_INITIAL" }).success).toBe(true);
     expect(missionControlTaskSchema.safeParse({ type: "gmail.send", prospectId: "prospect-1" }).success).toBe(false);
     expect(missionControlTaskSchema.safeParse({ type: "outreach.prepare" }).success).toBe(false);
+  });
+
+  it("routes brand discovery through a distinct governed task", async () => {
+    const { missionControl, runtime } = setup();
+    await missionControl.enqueue({ agentId: "brand-discovery", taskType: "brand.discovery.search", payload: { query: "beauty brands Austin", limit: 4 }, requiresApproval: false });
+    expect((await missionControl.runNext(new Date(Date.now() + 1_000)))?.status).toBe("COMPLETED");
+    expect(runtime.calls).toEqual(["discover-brands:beauty brands Austin:4"]);
+  });
+
+  it("records an autonomy evaluation without executing delivery", async () => {
+    const { missionControl, runtime } = setup();
+    await missionControl.enqueue({ agentId: "email-generation", taskType: "autonomy.evaluate", payload: { messageId: "message-1", action: "SEND_INITIAL" }, requiresApproval: false });
+    expect((await missionControl.runNext(new Date(Date.now() + 1_000)))?.status).toBe("COMPLETED");
+    expect(runtime.calls).toEqual(["autonomy:message-1:SEND_INITIAL"]);
   });
 
   it("routes research without requesting a CRM mutation", async () => {

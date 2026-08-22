@@ -35,7 +35,7 @@ export default async function MissionControlPage() {
     "email-generation",
     "followup",
     "analytics",
-    ...(research.brave ? ["creator-discovery"] : []),
+    ...(research.brave ? ["creator-discovery", "brand-discovery"] : []),
     ...(research.publicPage || research.apify ? ["creator-research"] : []),
   ]);
   const workerConfig = getAgentWorkerConfig();
@@ -52,7 +52,7 @@ export default async function MissionControlPage() {
     <main className="page-shell">
       <p className="eyebrow">AI orchestration</p>
       <h1 className="page-title mt-3">Mission Control</h1>
-      <p className="page-copy">A governed control plane for queued agent work. Read-only research activates only with owner-configured providers; all outreach remains review-only and never sends automatically.</p>
+      <p className="page-copy">A governed control plane for queued agent work. Creator and brand research activate only with owner-configured providers; autonomy decisions run in shadow mode and never send automatically.</p>
 
       <section className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         {[
@@ -95,7 +95,7 @@ export default async function MissionControlPage() {
           <article className="card p-6">
             <h2 className="text-lg font-semibold">System Health</h2>
             <p className="mt-4 text-2xl font-semibold text-emerald-700">Operational</p>
-            <p className="mt-2 text-sm text-slate-500">Database connected · approval enforcement active · stale-lock recovery configured</p>
+            <p className="mt-2 text-sm text-slate-500">Database connected · approval enforcement active · autonomy shadow policy active · stale-lock recovery configured</p>
             <p className="mt-3 text-xs text-slate-400">Worker limit: {workerConfig.maxJobsPerRun} jobs · stale after {workerConfig.staleLockMinutes} minutes · queue cap {workerConfig.queueLimit}</p>
           </article>
           <article className="card p-6">

@@ -12,6 +12,8 @@ function fixture() {
     sourceAssets: [],
     suppressionEntries: [{ id: "s1" }],
     auditEvents: [],
+    contactEvidence: [{ id: "e1", prospectId: "p1" }],
+    autonomyDecisions: [{ id: "d1", prospectId: "p1" }],
   };
   return {
     format: BACKUP_FORMAT,

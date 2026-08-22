@@ -42,6 +42,25 @@ Authenticated Mission Control controls can enqueue these tasks and manually run 
 
 Automated sending remains out of scope.
 
+## Increment 5 — autonomy shadow policy
+
+- Creator and brand discovery now use distinct allowlisted tasks while sharing
+  the owner-configured official search adapter. Results remain evidence for
+  review and never create CRM records.
+- Verified contact evidence and immutable, versioned autonomy decisions are
+  persisted independently from mutable prospect fields.
+- A deterministic shadow evaluator checks consent/relationship basis, evidence
+  freshness, jurisdiction allowlists, qualification, duplicates, suppression,
+  stop conditions, durable delivery attempts, sender identity, and global and
+  per-domain budgets.
+- Publicly listed business contact information is discovery evidence, not
+  automatic consent. It always remains in review.
+- The two deployment controls default to disabled and paused. This increment
+  records `ALLOW`, `REVIEW`, or `DENY`; it never creates a Gmail draft or sends.
+- A future delivery increment must reuse the existing durable delivery attempt
+  lock and may execute only an already-recorded `ALLOW` decision against the
+  exact unchanged message/evidence snapshot.
+
 ## Increment 3 controls
 
 - Each registered agent has a bounded per-worker execution limit and a bounded

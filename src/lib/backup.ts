@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 
-export const BACKUP_FORMAT = "postr-recruit-pipeline-v1";
+export const BACKUP_FORMAT = "postr-recruit-pipeline-v2";
 
 export type BackupSnapshot = {
   format: typeof BACKUP_FORMAT;
@@ -13,6 +13,8 @@ export type BackupSnapshot = {
     sourceAssets: unknown[];
     suppressionEntries: unknown[];
     auditEvents: unknown[];
+    contactEvidence: unknown[];
+    autonomyDecisions: unknown[];
   };
 };
 
@@ -24,6 +26,8 @@ export async function buildBackupSnapshot(): Promise<BackupSnapshot> {
     sourceAssets,
     suppressionEntries,
     auditEvents,
+    contactEvidence,
+    autonomyDecisions,
   ] = await Promise.all([
     db.prospect.findMany({ orderBy: { createdAt: "asc" } }),
     db.outreachMessage.findMany({ orderBy: { createdAt: "asc" } }),
@@ -31,6 +35,8 @@ export async function buildBackupSnapshot(): Promise<BackupSnapshot> {
     db.sourceAsset.findMany({ orderBy: { createdAt: "asc" } }),
     db.suppressionEntry.findMany({ orderBy: { createdAt: "asc" } }),
     db.auditEvent.findMany({ orderBy: { createdAt: "asc" } }),
+    db.contactEvidence.findMany({ orderBy: { collectedAt: "asc" } }),
+    db.autonomyDecision.findMany({ orderBy: { decidedAt: "asc" } }),
   ]);
   const data = {
     prospects,
@@ -39,6 +45,8 @@ export async function buildBackupSnapshot(): Promise<BackupSnapshot> {
     sourceAssets,
     suppressionEntries,
     auditEvents,
+    contactEvidence,
+    autonomyDecisions,
   };
   return {
     format: BACKUP_FORMAT,
@@ -65,6 +73,8 @@ export function validateBackupSnapshot(value: unknown): string[] {
     "sourceAssets",
     "suppressionEntries",
     "auditEvents",
+    "contactEvidence",
+    "autonomyDecisions",
   ] as const;
   for (const key of expected) {
     const rows = snapshot.data?.[key];

@@ -5,14 +5,18 @@ import { AgentTaskError } from "@/lib/agents/types";
 import { FollowUpPreparationError, prepareFollowUpDraft } from "@/lib/follow-up-preparation";
 import { inspectPublicPage } from "@/lib/public-page-inspection";
 import { configuredResearchCapabilities, createApifyDatasetReader, createBraveDiscoveryAdapter, ResearchAdapterError } from "@/lib/research";
+import { evaluateAutonomousMessage } from "@/lib/autonomy-evaluation";
+import type { AutonomousAction } from "@/lib/autonomy-policy";
 
 export interface AgentRuntimeServices {
   discover(query: string, limit: number): Promise<Record<string, unknown>>;
+  discoverBrands(query: string, limit: number): Promise<Record<string, unknown>>;
   inspectResearchUrl(url: string): Promise<Record<string, unknown>>;
   readApifyDataset(limit: number): Promise<Record<string, unknown>>;
   evaluateQualification(prospectId: string): Promise<Record<string, unknown>>;
   prepareOutreach(prospectId: string): Promise<Record<string, unknown>>;
   prepareFollowUp(prospectId: string): Promise<Record<string, unknown>>;
+  evaluateAutonomy(messageId: string, action: AutonomousAction): Promise<Record<string, unknown>>;
   analyticsSnapshot(): Promise<Record<string, unknown>>;
 }
 
@@ -20,7 +24,18 @@ export class PrismaAgentRuntimeServices implements AgentRuntimeServices {
   async discover(query: string, limit: number): Promise<Record<string, unknown>> {
     try {
       const results = await createBraveDiscoveryAdapter().search(query, limit);
-      return { provider: "brave", query, results, resultCount: results.length, crmChanged: false, reviewRequired: true };
+      return { provider: "brave", leadType: "CREATOR", query, results, resultCount: results.length, crmChanged: false, reviewRequired: true };
+    } catch (error) {
+      if (error instanceof ResearchAdapterError) throw new AgentTaskError(error.message, error.retryable);
+      throw error;
+    }
+  }
+
+  async discoverBrands(query: string, limit: number): Promise<Record<string, unknown>> {
+    try {
+      const governedQuery = `${query} (creator program OR influencer partnership OR brand ambassador)`;
+      const results = await createBraveDiscoveryAdapter().search(governedQuery, limit);
+      return { provider: "brave", leadType: "BRAND", query, governedQuery, results, resultCount: results.length, crmChanged: false, reviewRequired: true };
     } catch (error) {
       if (error instanceof ResearchAdapterError) throw new AgentTaskError(error.message, error.retryable);
       throw error;
@@ -116,6 +131,8 @@ export class PrismaAgentRuntimeServices implements AgentRuntimeServices {
       throw error;
     }
   }
+
+  async evaluateAutonomy(messageId: string, action: AutonomousAction): Promise<Record<string, unknown>> { return evaluateAutonomousMessage(messageId, action); }
 
   async analyticsSnapshot(): Promise<Record<string, unknown>> {
     const [prospects, creators, brands, awaitingReview, drafts, sent, suppressed] = await Promise.all([

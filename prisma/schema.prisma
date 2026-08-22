@@ -80,64 +80,79 @@ enum AgentLogEvent {
   RETRIED
 }
 
+enum AutonomyDecisionOutcome {
+  ALLOW
+  REVIEW
+  DENY
+}
+
+enum AutonomyAction {
+  CREATE_INTERNAL_DRAFT
+  CREATE_GMAIL_DRAFT
+  SEND_INITIAL
+  SEND_FOLLOW_UP
+}
+
 model Prospect {
-  id                       String              @id @default(cuid())
-  createdAt                DateTime            @default(now())
-  updatedAt                DateTime            @updatedAt
-  email                    String?
-  normalizedEmail          String?
-  leadType                 LeadType            @default(CREATOR)
-  displayName              String?
-  creatorFirstName         String?
-  organizationName         String?
-  businessWebsite          String?
-  username                 String?
-  sourcePlatform           String
-  sourceUrl                String?
-  emailSourceUrl           String?
-  emailSourceType          String?
-  campaign                 String?
-  screenshotPath           String?
-  visibleEmailEvidence     String?
-  extractionConfidence     Float?
-  profileBio               String?
-  creatorCategory          String?
-  personalizationHook      String?
-  personalizationSourceUrl String?
-  personalizationCheckedAt DateTime?
-  publicLocation           String?
-  locationEvidenceUrl      String?
-  timeZone                 String?
-  preferredSendHourLocal   Int                 @default(10)
-  outreachCountryCode      String?
-  outreachPermissionBasis  OutreachPermissionBasis @default(UNKNOWN)
-  outreachPermissionEvidence String?
+  id                          String                  @id @default(cuid())
+  createdAt                   DateTime                @default(now())
+  updatedAt                   DateTime                @updatedAt
+  email                       String?
+  normalizedEmail             String?
+  leadType                    LeadType                @default(CREATOR)
+  displayName                 String?
+  creatorFirstName            String?
+  organizationName            String?
+  businessWebsite             String?
+  username                    String?
+  sourcePlatform              String
+  sourceUrl                   String?
+  emailSourceUrl              String?
+  emailSourceType             String?
+  campaign                    String?
+  screenshotPath              String?
+  visibleEmailEvidence        String?
+  extractionConfidence        Float?
+  profileBio                  String?
+  creatorCategory             String?
+  personalizationHook         String?
+  personalizationSourceUrl    String?
+  personalizationCheckedAt    DateTime?
+  publicLocation              String?
+  locationEvidenceUrl         String?
+  timeZone                    String?
+  preferredSendHourLocal      Int                     @default(10)
+  outreachCountryCode         String?
+  outreachPermissionBasis     OutreachPermissionBasis @default(UNKNOWN)
+  outreachPermissionEvidence  String?
   outreachPermissionCheckedAt DateTime?
-  followerCount            Int?
-  followerCountVerified    Boolean             @default(false)
-  qualificationStatus      QualificationStatus @default(NEEDS_REVIEW)
-  qualificationEvidenceUrl String?
-  qualificationCheckedAt   DateTime?
-  status                   ProspectStatus      @default(CAPTURED)
-  notes                    String?
-  doNotContact             Boolean             @default(false)
-  gmailDraftId             String?
-  referralLinkGeneratedAt  DateTime?
-  referralLinkCopiedAt     DateTime?
-  referralLinkSentAt       DateTime?
-  joinedAt                 DateTime?
-  replyReceivedAt          DateTime?
-  hardBouncedAt            DateTime?
-  optedOutAt               DateTime?
-  campaignStartedAt        DateTime?
-  campaignCompletedAt      DateTime?
-  commissionAmount         Float?
-  followUpStage            Int                 @default(0)
-  nextFollowUpAt           DateTime?
-  lastContactedAt          DateTime?
-  suppressionReason        String?
-  outreachMessages         OutreachMessage[]
-  sourceAssets             SourceAsset[]
+  followerCount               Int?
+  followerCountVerified       Boolean                 @default(false)
+  qualificationStatus         QualificationStatus     @default(NEEDS_REVIEW)
+  qualificationEvidenceUrl    String?
+  qualificationCheckedAt      DateTime?
+  status                      ProspectStatus          @default(CAPTURED)
+  notes                       String?
+  doNotContact                Boolean                 @default(false)
+  gmailDraftId                String?
+  referralLinkGeneratedAt     DateTime?
+  referralLinkCopiedAt        DateTime?
+  referralLinkSentAt          DateTime?
+  joinedAt                    DateTime?
+  replyReceivedAt             DateTime?
+  hardBouncedAt               DateTime?
+  optedOutAt                  DateTime?
+  campaignStartedAt           DateTime?
+  campaignCompletedAt         DateTime?
+  commissionAmount            Float?
+  followUpStage               Int                     @default(0)
+  nextFollowUpAt              DateTime?
+  lastContactedAt             DateTime?
+  suppressionReason           String?
+  outreachMessages            OutreachMessage[]
+  sourceAssets                SourceAsset[]
+  contactEvidence             ContactEvidence[]
+  autonomyDecisions           AutonomyDecision[]
 
   @@index([normalizedEmail])
   @@index([leadType])
@@ -146,20 +161,21 @@ model Prospect {
 }
 
 model OutreachMessage {
-  id              String           @id @default(cuid())
-  prospectId      String
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-  subject         String
-  body            String
-  htmlBody        String?
-  followUpNumber  Int              @default(0)
-  approvalStatus  ApprovalStatus   @default(PENDING)
-  gmailDraftId    String?
-  scheduledFor    DateTime?
-  sentAt          DateTime?
-  prospect        Prospect         @relation(fields: [prospectId], references: [id], onDelete: Cascade)
-  deliveryAttempt DeliveryAttempt?
+  id                String             @id @default(cuid())
+  prospectId        String
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  subject           String
+  body              String
+  htmlBody          String?
+  followUpNumber    Int                @default(0)
+  approvalStatus    ApprovalStatus     @default(PENDING)
+  gmailDraftId      String?
+  scheduledFor      DateTime?
+  sentAt            DateTime?
+  prospect          Prospect           @relation(fields: [prospectId], references: [id], onDelete: Cascade)
+  deliveryAttempt   DeliveryAttempt?
+  autonomyDecisions AutonomyDecision[]
 
   @@index([prospectId])
   @@index([scheduledFor])
@@ -223,30 +239,63 @@ model OAuthToken {
   updatedAt             DateTime  @updatedAt
 }
 
+model ContactEvidence {
+  id             String    @id @default(cuid())
+  prospectId     String
+  kind           String
+  sourceUrl      String?
+  evidence       String
+  contactPurpose String?
+  collectedAt    DateTime  @default(now())
+  verifiedAt     DateTime?
+  prospect       Prospect  @relation(fields: [prospectId], references: [id], onDelete: Cascade)
+
+  @@index([prospectId, collectedAt])
+  @@index([kind, verifiedAt])
+}
+
+model AutonomyDecision {
+  id                String                  @id @default(cuid())
+  prospectId        String
+  outreachMessageId String?
+  action            AutonomyAction
+  outcome           AutonomyDecisionOutcome
+  policyVersion     String
+  reasons           String
+  evidenceSnapshot  String?
+  decidedAt         DateTime                @default(now())
+  prospect          Prospect                @relation(fields: [prospectId], references: [id], onDelete: Cascade)
+  outreachMessage   OutreachMessage?        @relation(fields: [outreachMessageId], references: [id], onDelete: SetNull)
+
+  @@index([prospectId, decidedAt])
+  @@index([outcome, action, decidedAt])
+  @@index([outreachMessageId])
+}
+
 model AgentJob {
-  id           String             @id @default(cuid())
-  agentId      String
-  agentName    String
-  taskType     String
-  payload      String?
-  result       String?
-  status       AgentJobStatus     @default(QUEUED)
-  priority     AgentJobPriority   @default(NORMAL)
-  attempts     Int                @default(0)
-  maxAttempts  Int                @default(3)
-  requiresApproval Boolean        @default(true)
-  approvedAt   DateTime?
-  approvalSource String?
-  scheduledFor DateTime           @default(now())
-  startedAt    DateTime?
-  completedAt  DateTime?
-  lastError    String?
-  createdAt    DateTime           @default(now())
-  updatedAt    DateTime           @updatedAt
-  queueItem    AgentQueueItem?
-  logs         AgentLog[]
-  history      AgentTaskHistory[]
-  metrics      AgentExecutionMetric[]
+  id               String                 @id @default(cuid())
+  agentId          String
+  agentName        String
+  taskType         String
+  payload          String?
+  result           String?
+  status           AgentJobStatus         @default(QUEUED)
+  priority         AgentJobPriority       @default(NORMAL)
+  attempts         Int                    @default(0)
+  maxAttempts      Int                    @default(3)
+  requiresApproval Boolean                @default(true)
+  approvedAt       DateTime?
+  approvalSource   String?
+  scheduledFor     DateTime               @default(now())
+  startedAt        DateTime?
+  completedAt      DateTime?
+  lastError        String?
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
+  queueItem        AgentQueueItem?
+  logs             AgentLog[]
+  history          AgentTaskHistory[]
+  metrics          AgentExecutionMetric[]
 
   @@index([status, priority, scheduledFor])
   @@index([agentId, createdAt])
@@ -254,15 +303,15 @@ model AgentJob {
 }
 
 model AgentQueueItem {
-  id          String           @id @default(cuid())
-  agentJobId  String           @unique
-  priority    AgentJobPriority @default(NORMAL)
-  priorityRank Int             @default(1)
-  availableAt DateTime         @default(now())
-  lockedAt    DateTime?
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-  job         AgentJob         @relation(fields: [agentJobId], references: [id], onDelete: Cascade)
+  id           String           @id @default(cuid())
+  agentJobId   String           @unique
+  priority     AgentJobPriority @default(NORMAL)
+  priorityRank Int              @default(1)
+  availableAt  DateTime         @default(now())
+  lockedAt     DateTime?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  job          AgentJob         @relation(fields: [agentJobId], references: [id], onDelete: Cascade)
 
   @@index([availableAt, priorityRank])
 }

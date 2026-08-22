@@ -136,6 +136,25 @@ Current blocker: this changes the production delivery state model and requires
 a reviewed database migration plus an owner decision about ambiguous-send
 reconciliation. Until completed, keep Gmail in draft-only/manual-send mode.
 
+### Activate bounded autonomous outreach — shadow policy completed
+
+The application now records verified contact evidence and versioned autonomy
+decisions. It has independent global and recipient-domain budgets, a country
+allowlist, a default-on pause control, and deterministic stops for duplicates,
+suppression, replies, bounces, opt-outs, conversions, and prior delivery
+attempts. Express consent or an existing relationship is required for an
+automatic `ALLOW`; public business contact discovery remains review-only.
+
+Remaining activation steps:
+
+- Reconnect Gmail after the Preview token-encryption-key rotation.
+- Replace fixture sender email and postal values with approved operational data.
+- Add an execution service that consumes an unchanged `ALLOW` decision through
+  the durable delivery-attempt lock; keep both autonomy controls off until that
+  service and ambiguous-delivery reconciliation are acceptance-tested.
+- Run shadow decisions, review false positives, then use an owner-approved
+  canary budget before any wider rollout.
+
 ### Complete production acceptance and compliance review
 
 Acceptance criteria:

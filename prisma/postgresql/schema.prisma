@@ -81,6 +81,19 @@ enum AgentLogEvent {
   RETRIED
 }
 
+enum AutonomyDecisionOutcome {
+  ALLOW
+  REVIEW
+  DENY
+}
+
+enum AutonomyAction {
+  CREATE_INTERNAL_DRAFT
+  CREATE_GMAIL_DRAFT
+  SEND_INITIAL
+  SEND_FOLLOW_UP
+}
+
 model Prospect {
   id                       String              @id @default(cuid())
   createdAt                DateTime            @default(now())
@@ -139,6 +152,8 @@ model Prospect {
   suppressionReason        String?
   outreachMessages         OutreachMessage[]
   sourceAssets             SourceAsset[]
+  contactEvidence          ContactEvidence[]
+  autonomyDecisions        AutonomyDecision[]
 
   @@index([normalizedEmail])
   @@index([leadType])
@@ -161,6 +176,7 @@ model OutreachMessage {
   sentAt          DateTime?
   prospect        Prospect         @relation(fields: [prospectId], references: [id], onDelete: Cascade)
   deliveryAttempt DeliveryAttempt?
+  autonomyDecisions AutonomyDecision[]
 
   @@index([prospectId])
   @@index([scheduledFor])
@@ -222,6 +238,39 @@ model OAuthToken {
   expiryDate            DateTime?
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
+}
+
+model ContactEvidence {
+  id             String    @id @default(cuid())
+  prospectId     String
+  kind           String
+  sourceUrl      String?
+  evidence       String
+  contactPurpose String?
+  collectedAt    DateTime  @default(now())
+  verifiedAt     DateTime?
+  prospect       Prospect  @relation(fields: [prospectId], references: [id], onDelete: Cascade)
+
+  @@index([prospectId, collectedAt])
+  @@index([kind, verifiedAt])
+}
+
+model AutonomyDecision {
+  id                String                  @id @default(cuid())
+  prospectId        String
+  outreachMessageId String?
+  action            AutonomyAction
+  outcome           AutonomyDecisionOutcome
+  policyVersion     String
+  reasons           String
+  evidenceSnapshot  String?
+  decidedAt         DateTime                @default(now())
+  prospect          Prospect                @relation(fields: [prospectId], references: [id], onDelete: Cascade)
+  outreachMessage   OutreachMessage?        @relation(fields: [outreachMessageId], references: [id], onDelete: SetNull)
+
+  @@index([prospectId, decidedAt])
+  @@index([outcome, action, decidedAt])
+  @@index([outreachMessageId])
 }
 
 model AgentJob {

@@ -4,6 +4,7 @@ import type { AgentRuntimeServices } from "@/lib/agents/runtime-services";
 import { parseAgentTask } from "@/lib/agents/task-contracts";
 import {
   AnalyticsAgent,
+  BrandDiscoveryAgent,
   CreatorDiscoveryAgent,
   CreatorQualificationAgent,
   CreatorResearchAgent,
@@ -32,6 +33,14 @@ class OperationalCreatorResearchAgent extends CreatorResearchAgent {
   }
 }
 
+class OperationalBrandDiscoveryAgent extends BrandDiscoveryAgent {
+  constructor(logger: AgentLogger, private readonly runtime: AgentRuntimeServices) { super(logger); }
+  async execute(task: AgentTask): Promise<AgentExecutionResult> {
+    const input = parseAgentTask(task, "brand.discovery.search");
+    return { taskId: task.id, output: await this.runtime.discoverBrands(input.query, input.limit) };
+  }
+}
+
 class OperationalCreatorQualificationAgent extends CreatorQualificationAgent {
   constructor(logger: AgentLogger, private readonly runtime: AgentRuntimeServices) { super(logger); }
   async execute(task: AgentTask): Promise<AgentExecutionResult> {
@@ -43,6 +52,10 @@ class OperationalCreatorQualificationAgent extends CreatorQualificationAgent {
 class OperationalEmailGenerationAgent extends EmailGenerationAgent {
   constructor(logger: AgentLogger, private readonly runtime: AgentRuntimeServices) { super(logger); }
   async execute(task: AgentTask): Promise<AgentExecutionResult> {
+    if (task.type === "autonomy.evaluate") {
+      const input = parseAgentTask(task, "autonomy.evaluate");
+      return { taskId: task.id, output: await this.runtime.evaluateAutonomy(input.messageId, input.action) };
+    }
     const input = parseAgentTask(task, "outreach.prepare");
     return { taskId: task.id, output: await this.runtime.prepareOutreach(input.prospectId) };
   }
@@ -68,6 +81,7 @@ export function createOperationalAgents(logger: AgentLogger, runtime: AgentRunti
   const connected = new Map<string, BaseAgent>([
     ["creator-discovery", new OperationalCreatorDiscoveryAgent(logger, runtime)],
     ["creator-research", new OperationalCreatorResearchAgent(logger, runtime)],
+    ["brand-discovery", new OperationalBrandDiscoveryAgent(logger, runtime)],
     ["creator-qualification", new OperationalCreatorQualificationAgent(logger, runtime)],
     ["email-generation", new OperationalEmailGenerationAgent(logger, runtime)],
     ["followup", new OperationalFollowupAgent(logger, runtime)],
