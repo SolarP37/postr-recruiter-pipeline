@@ -45,6 +45,11 @@ describe("Gmail delivery guards", () => {
     expect(canSendApprovedDraft({ ...approved, sendingMode: "draft_only" }).allowed).toBe(false);
   });
 
+  it("blocks both Gmail drafting and sending when outreach is paused", () => {
+    expect(canCreateGmailDraft({ ...approved, sendingMode: "paused" }).reason).toMatch(/paused/i);
+    expect(canSendApprovedDraft({ ...approved, sendingMode: "paused" }).allowed).toBe(false);
+  });
+
   it("requires approval and prevents duplicate sends", () => {
     expect(canCreateGmailDraft({ ...approved, approvalStatus: "PENDING" }).allowed).toBe(false);
     expect(canSendApprovedDraft({ ...approved, sentAt: new Date(), sendingMode: "manual_send" }).reason).toMatch(/already been sent/i);
