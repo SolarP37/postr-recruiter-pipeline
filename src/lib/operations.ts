@@ -1,14 +1,17 @@
 import { audit } from "@/lib/audit";
 
+export const REDACTED_OPERATIONAL_ERROR =
+  "Operational failure detail redacted; review provider diagnostics in the protected service console.";
+
 export async function reportOperationalError(
   operation: string,
-  error: unknown,
+  _error: unknown,
 ) {
-  const detail = error instanceof Error ? error.message : "Unknown error";
-  console.error(`[operations] ${operation}: ${detail}`);
+  void _error;
+  console.error(`[operations] ${operation}: ${REDACTED_OPERATIONAL_ERROR}`);
 
   await audit("OPERATIONAL_ERROR", "Operation", operation, {
-    detail: detail.slice(0, 500),
+    detail: REDACTED_OPERATIONAL_ERROR,
   }).catch(() => undefined);
 
   const webhook = process.env.OPERATIONS_ALERT_WEBHOOK_URL;
@@ -21,7 +24,7 @@ export async function reportOperationalError(
       operation,
       status: "failed",
       occurredAt: new Date().toISOString(),
-      detail: detail.slice(0, 500),
+      detail: REDACTED_OPERATIONAL_ERROR,
     }),
     signal: AbortSignal.timeout(5_000),
   }).catch(() => undefined);

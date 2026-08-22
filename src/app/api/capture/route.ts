@@ -77,7 +77,7 @@ export async function POST(request: Request) {
       prospectIds,
     });
   } catch (error) {
-    console.error("Capture failed", error);
+    console.error("Capture failed; exception detail was redacted.");
     const message =
       process.env.NODE_ENV === "production"
         ? "Capture processing failed. No prospect was created."
