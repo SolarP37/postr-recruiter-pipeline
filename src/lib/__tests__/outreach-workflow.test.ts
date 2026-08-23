@@ -12,7 +12,7 @@ describe("three-attempt outreach workflow", () => {
     expect(canBeginDeliveryAttempt({ existingAttemptStatus: null }).allowed).toBe(true);
 
     const initialSent = new Date("2026-07-21T14:00:00Z");
-    const base = { sentAt: initialSent, replyReceivedAt: null, hardBouncedAt: null, optedOutAt: null, joinedAt: null, suppressed: false };
+    const base = { sentAt: initialSent, replyReceivedAt: null, hardBouncedAt: null, optedOutAt: null, joinedAt: null, suppressed: false, duplicate: false };
     expect(followUpEligibility({ ...base, followUpStage: 0 }).earliestAt?.toISOString()).toBe("2026-07-25T14:00:00.000Z");
     expect(followUpEligibility({ ...base, followUpStage: 1 }).earliestAt?.toISOString()).toBe("2026-07-28T14:00:00.000Z");
     expect(createTailoredFollowUp({ leadType: "CREATOR", creatorFirstName: "Test" }, 1).body).toContain("no obligation");
@@ -22,6 +22,7 @@ describe("three-attempt outreach workflow", () => {
 
   it("stops Gmail drafting and follow-ups after suppression or opt-out", () => {
     expect(canCreateGmailDraft({ approvalStatus: "APPROVED", sentAt: null, suppressed: true, prospectDoNotContact: false, sendingMode: "draft_only" }).allowed).toBe(false);
-    expect(followUpEligibility({ sentAt: new Date(), replyReceivedAt: null, hardBouncedAt: null, optedOutAt: new Date(), joinedAt: null, suppressed: false, followUpStage: 0 }).allowed).toBe(false);
+    expect(followUpEligibility({ sentAt: new Date(), replyReceivedAt: null, hardBouncedAt: null, optedOutAt: new Date(), joinedAt: null, suppressed: false, duplicate: false, followUpStage: 0 }).allowed).toBe(false);
+    expect(followUpEligibility({ sentAt: new Date(), replyReceivedAt: null, hardBouncedAt: null, optedOutAt: null, joinedAt: null, suppressed: false, duplicate: true, followUpStage: 0 }).allowed).toBe(false);
   });
 });

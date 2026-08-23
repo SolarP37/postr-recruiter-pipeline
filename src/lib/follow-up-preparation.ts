@@ -20,6 +20,14 @@ export async function prepareFollowUpDraft(prospectId: string) {
   if (prospect.outreachMessages.some((message) => !message.sentAt && message.approvalStatus !== "REJECTED")) {
     throw new FollowUpPreparationError("Review the existing outreach draft before preparing another attempt.", 409);
   }
+  const [suppression, duplicateCount] = await Promise.all([
+    prospect.normalizedEmail
+      ? db.suppressionEntry.findUnique({ where: { normalizedEmail: prospect.normalizedEmail } })
+      : null,
+    prospect.normalizedEmail
+      ? db.prospect.count({ where: { normalizedEmail: prospect.normalizedEmail } })
+      : 0,
+  ]);
   const sentMessages = prospect.outreachMessages.filter((message) => message.sentAt);
   const lastSent = [...sentMessages].sort((left, right) => (right.sentAt?.getTime() || 0) - (left.sentAt?.getTime() || 0))[0];
   const followUpStage = sentMessages.reduce((highest, message) => Math.max(highest, message.followUpNumber), 0);
@@ -29,7 +37,8 @@ export async function prepareFollowUpDraft(prospectId: string) {
     hardBouncedAt: prospect.hardBouncedAt,
     optedOutAt: prospect.optedOutAt,
     joinedAt: prospect.joinedAt,
-    suppressed: prospect.doNotContact,
+    suppressed: prospect.doNotContact || Boolean(suppression),
+    duplicate: duplicateCount > 1,
     followUpStage,
   });
   if (!eligibility.allowed || !eligibility.earliestAt) {

@@ -61,6 +61,27 @@ Automated sending remains out of scope.
   lock and may execute only an already-recorded `ALLOW` decision against the
   exact unchanged message/evidence snapshot.
 
+## Stabilization increment — release candidate
+
+Stabilization status on 2026-08-23: the local release gate passes schema
+parity, PostgreSQL schema validation, dependency audit, lint, TypeScript, 161
+automated tests, and a clean local production build. Preview migration and
+acceptance work remains intentionally pending.
+
+- Follow-up preparation now checks the central suppression list and normalized
+  duplicate recipients in addition to the prospect stop-condition fields.
+- Autonomy evaluation requires a normalized recipient address and uses that
+  canonical value for duplicate, suppression, and recipient-domain budget
+  accounting.
+- PostgreSQL migration `0011_agent_job_priority_cleanup` removes the obsolete
+  job-level priority rank introduced in migration `0008`; queue priority remains
+  authoritative in `AgentQueueItem`.
+- The release gate is schema parity, PostgreSQL schema validation, lint,
+  TypeScript, the full Vitest suite, and a production Next.js build.
+- Preview must apply migrations `0010` and `0011` and repeat Mission Control,
+  suppression, duplicate, backup, and private-asset acceptance checks before
+  the branch is eligible for owner review.
+
 ## Increment 3 controls
 
 - Each registered agent has a bounded per-worker execution limit and a bounded

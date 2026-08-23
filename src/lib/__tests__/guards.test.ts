@@ -88,6 +88,7 @@ describe("follow-up guards", () => {
     optedOutAt: null,
     joinedAt: null,
     suppressed: false,
+    duplicate: false,
     followUpStage: 0,
   };
 
@@ -105,4 +106,11 @@ describe("follow-up guards", () => {
       expect(followUpEligibility({ ...base, [field]: new Date() }).allowed).toBe(false);
     },
   );
+
+  it("stops for duplicate recipients", () => {
+    expect(followUpEligibility({ ...base, duplicate: true })).toEqual({
+      allowed: false,
+      reason: "Duplicate recipients cannot receive follow-up.",
+    });
+  });
 });

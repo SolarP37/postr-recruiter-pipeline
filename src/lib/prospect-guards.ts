@@ -124,8 +124,12 @@ export function followUpEligibility(input: {
   optedOutAt: Date | null;
   joinedAt: Date | null;
   suppressed: boolean;
+  duplicate: boolean;
   followUpStage: number;
 }) {
+  if (input.duplicate) {
+    return { allowed: false, reason: "Duplicate recipients cannot receive follow-up." };
+  }
   if (
     input.replyReceivedAt ||
     input.hardBouncedAt ||

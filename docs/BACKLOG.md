@@ -34,7 +34,9 @@ Acceptance criteria:
 
 An owner-controlled Neon PostgreSQL store is connected and migrations through
 `0009_agent_job_approval` are applied. A documented restore rehearsal remains
-before production promotion.
+before production promotion. The Sprint 2 release candidate must apply
+`0010_autonomy_policy` followed by `0011_agent_job_priority_cleanup` in Preview
+before its acceptance pass.
 
 ### Provision private screenshot storage — preview completed
 
