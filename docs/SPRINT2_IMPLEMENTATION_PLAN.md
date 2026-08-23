@@ -63,10 +63,12 @@ Automated sending remains out of scope.
 
 ## Stabilization increment — release candidate
 
-Stabilization status on 2026-08-23: the local release gate passes schema
-parity, PostgreSQL schema validation, dependency audit, lint, TypeScript, 161
-automated tests, and a clean local production build. Preview migration and
-acceptance work remains intentionally pending.
+Stabilization status on 2026-08-23: the release gate passes schema parity,
+PostgreSQL schema validation, dependency audit, lint, TypeScript, 161 automated
+tests, and a production build. GitHub Verify and the Vercel Preview deployment
+pass, all 11 Preview migrations are applied, and the local Mission Control
+acceptance job completes. Protected Preview workflow acceptance still requires
+the owner-held recruiter login.
 
 - Follow-up preparation now checks the central suppression list and normalized
   duplicate recipients in addition to the prospect stop-condition fields.
@@ -78,9 +80,9 @@ acceptance work remains intentionally pending.
   authoritative in `AgentQueueItem`.
 - The release gate is schema parity, PostgreSQL schema validation, lint,
   TypeScript, the full Vitest suite, and a production Next.js build.
-- Preview must apply migrations `0010` and `0011` and repeat Mission Control,
-  suppression, duplicate, backup, and private-asset acceptance checks before
-  the branch is eligible for owner review.
+- Preview must repeat Mission Control, suppression, duplicate, backup, and
+  private-asset acceptance checks after the owner signs in before the branch is
+  eligible for final owner review.
 
 ## Increment 3 controls
 
