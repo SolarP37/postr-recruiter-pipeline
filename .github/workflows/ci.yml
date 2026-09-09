@@ -1,0 +1,69 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      DATABASE_URL: file:./ci.db
+      AUTH_MODE: credentials
+      AUTH_SECRET: ci-only-auth-secret-with-at-least-32-characters
+      VISION_PROVIDER: mock
+      TOKEN_ENCRYPTION_KEY: ci-only-token-encryption-key
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npm run db:generate
+
+      - name: Initialize CI database
+        run: npm run db:push
+
+      - name: Validate production database schema
+        env:
+          DATABASE_URL: postgresql://ci_user:ci_password@localhost:5432/postr_ci
+          DIRECT_URL: postgresql://ci_user:ci_password@localhost:5432/postr_ci
+        run: |
+          npm run db:schemas:check
+          npm run db:postgres:validate
+
+      - name: Audit dependencies
+        run: npm audit --audit-level=moderate
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type-check
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build

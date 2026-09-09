@@ -1,18 +1,14 @@
-import { randomUUID } from "node:crypto";
-import path from "node:path";
-
-export const MAX_UPLOAD_BYTES = 8 * 1024 * 1024;
+export const MAX_UPLOAD_BYTES = 4 * 1024 * 1024;
 export const ALLOWED_MIME_TYPES = [
   "image/png",
   "image/jpeg",
   "image/webp",
 ] as const;
+export type AllowedMimeType = (typeof ALLOWED_MIME_TYPES)[number];
 
-const EXTENSIONS: Record<(typeof ALLOWED_MIME_TYPES)[number], string> = {
-  "image/png": ".png",
-  "image/jpeg": ".jpg",
-  "image/webp": ".webp",
-};
+export function isAllowedMimeType(value: string): value is AllowedMimeType {
+  return ALLOWED_MIME_TYPES.includes(value as AllowedMimeType);
+}
 
 export function detectedMimeType(bytes: Uint8Array): string | null {
   if (
@@ -45,15 +41,18 @@ export function validateUpload(file: {
   size: number;
   type: string;
   bytes: Uint8Array;
-}): { valid: true; mimeType: (typeof ALLOWED_MIME_TYPES)[number] } | {
+}): { valid: true; mimeType: AllowedMimeType } | {
   valid: false;
   error: string;
 } {
   if (file.size <= 0) return { valid: false, error: "The image is empty." };
   if (file.size > MAX_UPLOAD_BYTES) {
-    return { valid: false, error: "Images must be 8 MB or smaller." };
+    return { valid: false, error: "Images must be 4 MB or smaller." };
   }
-  if (!ALLOWED_MIME_TYPES.includes(file.type as (typeof ALLOWED_MIME_TYPES)[number])) {
+  if (file.size !== file.bytes.byteLength) {
+    return { valid: false, error: "The uploaded image is incomplete." };
+  }
+  if (!isAllowedMimeType(file.type)) {
     return { valid: false, error: "Only PNG, JPEG, and WebP images are accepted." };
   }
   const detected = detectedMimeType(file.bytes);
@@ -62,17 +61,6 @@ export function validateUpload(file: {
   }
   return {
     valid: true,
-    mimeType: detected as (typeof ALLOWED_MIME_TYPES)[number],
-  };
-}
-
-export function randomizedUploadPath(
-  mimeType: (typeof ALLOWED_MIME_TYPES)[number],
-): { absolutePath: string; relativePath: string } {
-  const filename = `${randomUUID()}${EXTENSIONS[mimeType]}`;
-  const relativePath = path.join("storage", "uploads", filename);
-  return {
-    relativePath,
-    absolutePath: path.join(process.cwd(), relativePath),
+    mimeType: detected as AllowedMimeType,
   };
 }

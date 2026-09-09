@@ -1,0 +1,369 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum ProspectStatus {
+  CAPTURED
+  NEEDS_REVIEW
+  APPROVED
+  REJECTED
+  DRAFT_CREATED
+  SENT
+  REPLIED
+  INTERESTED
+  REFERRAL_SENT
+  JOINED
+  BOUNCED
+  OPTED_OUT
+  SUPPRESSED
+  NO_EMAIL_FOUND
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum QualificationStatus {
+  QUALIFIED
+  LIKELY_QUALIFIED
+  NEEDS_REVIEW
+  NOT_YET_QUALIFIED
+  DO_NOT_CONTACT
+}
+
+enum LeadType {
+  CREATOR
+  BRAND
+}
+
+enum DeliveryAttemptStatus {
+  STARTED
+  CONFIRMED
+  AMBIGUOUS
+}
+
+enum OutreachPermissionBasis {
+  UNKNOWN
+  EXPRESS_CONSENT
+  EXISTING_BUSINESS_RELATIONSHIP
+  CORPORATE_BUSINESS_CONTACT
+  PUBLICLY_LISTED_BUSINESS_CONTACT
+}
+
+enum AgentJobStatus {
+  QUEUED
+  RUNNING
+  COMPLETED
+  FAILED
+  RETRY_SCHEDULED
+  CANCELLED
+}
+
+enum AgentJobPriority {
+  LOW
+  NORMAL
+  HIGH
+  CRITICAL
+}
+
+enum AgentLogEvent {
+  STARTED
+  COMPLETED
+  FAILED
+  RETRIED
+}
+
+enum AutonomyDecisionOutcome {
+  ALLOW
+  REVIEW
+  DENY
+}
+
+enum AutonomyAction {
+  CREATE_INTERNAL_DRAFT
+  CREATE_GMAIL_DRAFT
+  SEND_INITIAL
+  SEND_FOLLOW_UP
+}
+
+model Prospect {
+  id                       String              @id @default(cuid())
+  createdAt                DateTime            @default(now())
+  updatedAt                DateTime            @updatedAt
+  email                    String?
+  normalizedEmail          String?
+  leadType                 LeadType            @default(CREATOR)
+  displayName              String?
+  creatorFirstName         String?
+  organizationName         String?
+  businessWebsite          String?
+  username                 String?
+  sourcePlatform           String
+  sourceUrl                String?
+  emailSourceUrl           String?
+  emailSourceType          String?
+  campaign                 String?
+  screenshotPath           String?
+  visibleEmailEvidence     String?
+  extractionConfidence     Float?
+  profileBio               String?
+  creatorCategory          String?
+  personalizationHook      String?
+  personalizationSourceUrl String?
+  personalizationCheckedAt DateTime?
+  publicLocation           String?
+  locationEvidenceUrl      String?
+  timeZone                 String?
+  preferredSendHourLocal   Int                 @default(10)
+  outreachCountryCode      String?
+  outreachPermissionBasis  OutreachPermissionBasis @default(UNKNOWN)
+  outreachPermissionEvidence String?
+  outreachPermissionCheckedAt DateTime?
+  followerCount            Int?
+  followerCountVerified    Boolean             @default(false)
+  qualificationStatus      QualificationStatus @default(NEEDS_REVIEW)
+  qualificationEvidenceUrl String?
+  qualificationCheckedAt   DateTime?
+  status                   ProspectStatus      @default(CAPTURED)
+  notes                    String?
+  doNotContact             Boolean             @default(false)
+  gmailDraftId             String?
+  referralLinkGeneratedAt  DateTime?
+  referralLinkCopiedAt     DateTime?
+  referralLinkSentAt       DateTime?
+  joinedAt                 DateTime?
+  replyReceivedAt          DateTime?
+  hardBouncedAt            DateTime?
+  optedOutAt               DateTime?
+  campaignStartedAt        DateTime?
+  campaignCompletedAt      DateTime?
+  commissionAmount         Float?
+  followUpStage            Int                 @default(0)
+  nextFollowUpAt           DateTime?
+  lastContactedAt          DateTime?
+  suppressionReason        String?
+  outreachMessages         OutreachMessage[]
+  sourceAssets             SourceAsset[]
+  contactEvidence          ContactEvidence[]
+  autonomyDecisions        AutonomyDecision[]
+
+  @@index([normalizedEmail])
+  @@index([leadType])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model OutreachMessage {
+  id              String           @id @default(cuid())
+  prospectId      String
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  subject         String
+  body            String
+  htmlBody        String?
+  followUpNumber  Int              @default(0)
+  approvalStatus  ApprovalStatus   @default(PENDING)
+  gmailDraftId    String?
+  scheduledFor    DateTime?
+  sentAt          DateTime?
+  prospect        Prospect         @relation(fields: [prospectId], references: [id], onDelete: Cascade)
+  deliveryAttempt DeliveryAttempt?
+  autonomyDecisions AutonomyDecision[]
+
+  @@index([prospectId])
+  @@index([scheduledFor])
+}
+
+model DeliveryAttempt {
+  id                String                @id @default(cuid())
+  outreachMessageId String                @unique
+  provider          String                @default("gmail")
+  status            DeliveryAttemptStatus @default(STARTED)
+  providerMessageId String?
+  errorMessage      String?
+  startedAt         DateTime              @default(now())
+  completedAt       DateTime?
+  updatedAt         DateTime              @updatedAt
+  outreachMessage   OutreachMessage       @relation(fields: [outreachMessageId], references: [id], onDelete: Cascade)
+
+  @@index([status, startedAt])
+}
+
+model SourceAsset {
+  id            String   @id @default(cuid())
+  prospectId    String
+  filePath      String
+  mimeType      String
+  extractedText String?
+  createdAt     DateTime @default(now())
+  prospect      Prospect @relation(fields: [prospectId], references: [id], onDelete: Cascade)
+
+  @@index([prospectId])
+}
+
+model SuppressionEntry {
+  id              String   @id @default(cuid())
+  normalizedEmail String   @unique
+  reason          String
+  createdAt       DateTime @default(now())
+}
+
+model AuditEvent {
+  id         String   @id @default(cuid())
+  action     String
+  entityType String
+  entityId   String?
+  metadata   String?
+  createdAt  DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}
+
+model OAuthToken {
+  id                    String    @id @default("google")
+  provider              String    @unique
+  encryptedAccessToken  String?
+  encryptedRefreshToken String?
+  scope                 String?
+  tokenType             String?
+  expiryDate            DateTime?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+}
+
+model ContactEvidence {
+  id             String    @id @default(cuid())
+  prospectId     String
+  kind           String
+  sourceUrl      String?
+  evidence       String
+  contactPurpose String?
+  collectedAt    DateTime  @default(now())
+  verifiedAt     DateTime?
+  prospect       Prospect  @relation(fields: [prospectId], references: [id], onDelete: Cascade)
+
+  @@index([prospectId, collectedAt])
+  @@index([kind, verifiedAt])
+}
+
+model AutonomyDecision {
+  id                String                  @id @default(cuid())
+  prospectId        String
+  outreachMessageId String?
+  action            AutonomyAction
+  outcome           AutonomyDecisionOutcome
+  policyVersion     String
+  reasons           String
+  evidenceSnapshot  String?
+  decidedAt         DateTime                @default(now())
+  prospect          Prospect                @relation(fields: [prospectId], references: [id], onDelete: Cascade)
+  outreachMessage   OutreachMessage?        @relation(fields: [outreachMessageId], references: [id], onDelete: SetNull)
+
+  @@index([prospectId, decidedAt])
+  @@index([outcome, action, decidedAt])
+  @@index([outreachMessageId])
+}
+
+model AgentJob {
+  id           String             @id @default(cuid())
+  agentId      String
+  agentName    String
+  taskType     String
+  payload      String?
+  result       String?
+  status       AgentJobStatus     @default(QUEUED)
+  priority     AgentJobPriority   @default(NORMAL)
+  attempts     Int                @default(0)
+  maxAttempts  Int                @default(3)
+  requiresApproval Boolean        @default(true)
+  approvedAt   DateTime?
+  approvalSource String?
+  scheduledFor DateTime           @default(now())
+  startedAt    DateTime?
+  completedAt  DateTime?
+  lastError    String?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  queueItem    AgentQueueItem?
+  logs         AgentLog[]
+  history      AgentTaskHistory[]
+  metrics      AgentExecutionMetric[]
+
+  @@index([status, priority, scheduledFor])
+  @@index([agentId, createdAt])
+  @@index([requiresApproval, approvedAt])
+}
+
+model AgentQueueItem {
+  id          String           @id @default(cuid())
+  agentJobId  String           @unique
+  priority    AgentJobPriority @default(NORMAL)
+  priorityRank Int             @default(1)
+  availableAt DateTime         @default(now())
+  lockedAt    DateTime?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  job         AgentJob         @relation(fields: [agentJobId], references: [id], onDelete: Cascade)
+
+  @@index([availableAt, priorityRank])
+}
+
+model AgentLog {
+  id         String        @id @default(cuid())
+  agentJobId String?
+  agentId    String
+  agentName  String
+  taskId     String?
+  event      AgentLogEvent
+  message    String
+  durationMs Int?
+  retryCount Int           @default(0)
+  error      String?
+  timestamp  DateTime      @default(now())
+  job        AgentJob?     @relation(fields: [agentJobId], references: [id], onDelete: SetNull)
+
+  @@index([agentId, timestamp])
+  @@index([agentJobId, timestamp])
+}
+
+model AgentTaskHistory {
+  id          String         @id @default(cuid())
+  agentJobId  String
+  agentId     String
+  status      AgentJobStatus
+  attempt     Int
+  startedAt   DateTime
+  completedAt DateTime?
+  durationMs  Int?
+  error       String?
+  createdAt   DateTime       @default(now())
+  job         AgentJob       @relation(fields: [agentJobId], references: [id], onDelete: Cascade)
+
+  @@index([agentJobId, attempt])
+  @@index([agentId, createdAt])
+}
+
+model AgentExecutionMetric {
+  id              String   @id @default(cuid())
+  agentJobId      String
+  agentId         String
+  agentName       String
+  executionTimeMs Int
+  successful      Boolean
+  retryCount      Int      @default(0)
+  errorCount      Int      @default(0)
+  recordedAt      DateTime @default(now())
+  job             AgentJob @relation(fields: [agentJobId], references: [id], onDelete: Cascade)
+
+  @@index([agentId, recordedAt])
+  @@index([successful, recordedAt])
+}
