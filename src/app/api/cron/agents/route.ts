@@ -3,6 +3,7 @@ import { audit } from "@/lib/audit";
 import { createMissionControl } from "@/lib/mission-control";
 import { reportOperationalError } from "@/lib/operations";
 import { getAgentWorkerConfig, getPerAgentExecutionLimits } from "@/lib/orchestrator/worker-config";
+import { queueDueFollowUpDrafts } from "@/lib/follow-up-automation";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -24,12 +25,14 @@ export async function GET(request: Request) {
   try {
     const missionControl = createMissionControl();
     const recovery = await missionControl.recoverStale(staleCutoff, now);
+    const followUps = await queueDueFollowUpDrafts(missionControl, now);
     const perAgentLimits = getPerAgentExecutionLimits(missionControl.registry.list().map((agent) => agent.id));
     const jobs = await missionControl.runAvailable(config.maxJobsPerRun, now, perAgentLimits);
     await audit("AGENT_WORKER_COMPLETED", "AgentWorker", now.toISOString(), {
       processed: jobs.length,
       recovered: recovery.recovered,
       failedRecovery: recovery.failed,
+      followUpDraftsQueued: followUps.queued,
       perAgentLimits,
       durationMs: Date.now() - startedAt,
     });
@@ -38,6 +41,8 @@ export async function GET(request: Request) {
       processed: jobs.length,
       recovered: recovery.recovered,
       failedRecovery: recovery.failed,
+      followUpAutomationEnabled: followUps.enabled,
+      followUpDraftsQueued: followUps.queued,
       jobs: jobs.map((job) => ({ id: job.id, taskType: job.taskType, status: job.status })),
       durationMs: Date.now() - startedAt,
     });

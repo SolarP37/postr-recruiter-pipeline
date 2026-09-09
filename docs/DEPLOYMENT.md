@@ -142,6 +142,9 @@ intentionally defaults to manual sending from Gmail.
 - `AGENT_MAX_JOBS_PER_RUN` - bounded from 1 to 10; defaults to 3
 - `AGENT_STALE_LOCK_MINUTES` - bounded from 5 to 120; defaults to 15
 - `AGENT_QUEUE_LIMIT` - bounded from 10 to 1000; defaults to 100
+- `AUTO_PREPARE_FOLLOWUPS=true` - optional; queues due follow-up drafts during
+  the daily agent run. Drafts remain pending human review and are never sent.
+- `AUTO_FOLLOWUP_PREP_LIMIT` - bounded from 1 to 10; defaults to 3
 - `AGENT_<NORMALIZED_ID>_MAX_PER_RUN` - optional per-agent worker cap from 1
   to 10; defaults to 1 (for example `AGENT_ANALYTICS_MAX_PER_RUN`)
 - `AGENT_<NORMALIZED_ID>_QUEUE_LIMIT` - optional per-agent active queue cap

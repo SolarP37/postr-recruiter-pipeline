@@ -50,6 +50,8 @@ Tailwind CSS, and a mock-first integration architecture.
   dataset research adapters that never create or approve prospects
 - Controlled follow-up preparation that enforces stop conditions and creates
   pending internal drafts only
+- Optional daily preparation of due follow-up drafts with duplicate-job,
+  suppression, reply, bounce, opt-out, and batch-limit safeguards
 - Environment variable template added without secrets
 - Local lint, type-check, test, build, and smoke-test commands available
 
