@@ -1,44 +1,55 @@
 {
-  "generated_at": "2026-09-24T19:17:03.268101Z",
+  "generated_at": "2026-09-24T23:13:39.247769Z",
   "domain": "postrreach.com",
   "stats": {
-    "total": 11820,
+    "total": 11943,
     "contacted": 1847,
-    "not_yet": 9874,
+    "not_yet": 9997,
     "no_contact": 99,
     "creators": 11197,
-    "brands": 623,
+    "brands": 746,
     "sent_today": 225,
     "sent_week": 928,
     "sent_month": 1927,
-    "mapped": 3142,
-    "unmapped": 8678,
+    "mapped": 3257,
+    "unmapped": 8686,
     "geo_country_only": 726,
     "geo_region_only": 353,
-    "geo_empty": 6316
+    "geo_empty": 6317
   },
   "places": [
     {
-      "n": 25,
+      "n": 28,
       "contacted": 7,
-      "not_yet": 18,
+      "not_yet": 21,
       "no_contact": 0,
       "creators": 12,
-      "brands": 13,
+      "brands": 16,
       "lat": 40.69402,
       "lng": -73.99034,
       "label": "Brooklyn, NY"
     },
     {
-      "n": 82,
+      "n": 83,
       "contacted": 19,
-      "not_yet": 63,
+      "not_yet": 64,
       "no_contact": 0,
       "creators": 23,
-      "brands": 59,
+      "brands": 60,
       "lat": 33.97309,
       "lng": -118.2479,
       "label": "Los Angeles, CA"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 40.06802,
+      "lng": -74.84535,
+      "label": "Burlington, NJ"
     },
     {
       "n": 1,
@@ -52,23 +63,56 @@
       "label": "Silverton, OR"
     },
     {
-      "n": 25,
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 44.93557,
+      "lng": -93.6341,
+      "label": "Spring Park, MN"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 42.54237,
+      "lng": -83.37931,
+      "label": "West Bloomfield, MI"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 43.30382,
+      "lng": -96.5938,
+      "label": "Canton, SD"
+    },
+    {
+      "n": 27,
       "contacted": 7,
-      "not_yet": 18,
+      "not_yet": 20,
       "no_contact": 0,
       "creators": 16,
-      "brands": 9,
+      "brands": 11,
       "lat": 37.775,
       "lng": -122.4183,
       "label": "San Francisco, CA"
     },
     {
-      "n": 14,
+      "n": 15,
       "contacted": 5,
-      "not_yet": 9,
+      "not_yet": 10,
       "no_contact": 0,
       "creators": 13,
-      "brands": 1,
+      "brands": 2,
       "lat": 25.779,
       "lng": -80.1982,
       "label": "Miami, FL"
@@ -85,12 +129,12 @@
       "label": "Montgomery, AL"
     },
     {
-      "n": 4,
+      "n": 5,
       "contacted": 1,
-      "not_yet": 3,
+      "not_yet": 4,
       "no_contact": 0,
       "creators": 3,
-      "brands": 1,
+      "brands": 2,
       "lat": 43.6136,
       "lng": -116.2025,
       "label": "Boise, ID"
@@ -107,15 +151,125 @@
       "label": "Portland, OR"
     },
     {
-      "n": 106,
+      "n": 9,
+      "contacted": 2,
+      "not_yet": 7,
+      "no_contact": 0,
+      "creators": 7,
+      "brands": 2,
+      "lat": 38.5816,
+      "lng": -121.4933,
+      "label": "Sacramento, CA"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 38.52591,
+      "lng": -105.99782,
+      "label": "salida, CO"
+    },
+    {
+      "n": 107,
       "contacted": 32,
-      "not_yet": 72,
+      "not_yet": 73,
       "no_contact": 2,
       "creators": 77,
-      "brands": 29,
+      "brands": 30,
       "lat": 40.7128,
       "lng": -74.006,
       "label": "New York, NY"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 39.15664,
+      "lng": -75.53598,
+      "label": "Dover, DE"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 37.45625,
+      "lng": -122.2002,
+      "label": "Atherton, CA"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 43.67546,
+      "lng": -114.37366,
+      "label": "Ketchum, ID"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 38.96303,
+      "lng": -94.73995,
+      "label": "Lenexa, KS"
+    },
+    {
+      "n": 4,
+      "contacted": 1,
+      "not_yet": 3,
+      "no_contact": 0,
+      "creators": 3,
+      "brands": 1,
+      "lat": 41.261,
+      "lng": -95.9376,
+      "label": "Omaha, NE"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 37.33118,
+      "lng": -92.92503,
+      "label": "Marshfield, MO"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 41.16489,
+      "lng": -81.23366,
+      "label": "Ravenna, OH"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 33.8815,
+      "lng": -117.6078,
+      "label": "CORONA, CA"
     },
     {
       "n": 10,
@@ -129,6 +283,28 @@
       "label": "St. Louis, MO"
     },
     {
+      "n": 15,
+      "contacted": 10,
+      "not_yet": 5,
+      "no_contact": 0,
+      "creators": 13,
+      "brands": 2,
+      "lat": 33.451,
+      "lng": -112.0685,
+      "label": "Phoenix, AZ"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 37.76999,
+      "lng": -84.84675,
+      "label": "Harrodsburg, KY"
+    },
+    {
       "n": 1,
       "contacted": 0,
       "not_yet": 1,
@@ -138,6 +314,83 @@
       "lat": 37.67465,
       "lng": -121.0113,
       "label": "Modesto, CA"
+    },
+    {
+      "n": 31,
+      "contacted": 11,
+      "not_yet": 18,
+      "no_contact": 2,
+      "creators": 30,
+      "brands": 1,
+      "lat": 32.99685,
+      "lng": -96.79211,
+      "label": "Dallas, TX"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 40.4947,
+      "lng": -111.40509,
+      "label": "Heber City, UT"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 33.9252,
+      "lng": -117.8895,
+      "label": "Brea, CA"
+    },
+    {
+      "n": 34,
+      "contacted": 9,
+      "not_yet": 25,
+      "no_contact": 0,
+      "creators": 25,
+      "brands": 9,
+      "lat": 41.88585,
+      "lng": -87.61812,
+      "label": "Chicago, IL"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 35.46367,
+      "lng": -82.53537,
+      "label": "Arden, NC"
+    },
+    {
+      "n": 28,
+      "contacted": 12,
+      "not_yet": 15,
+      "no_contact": 1,
+      "creators": 22,
+      "brands": 6,
+      "lat": 47.61144,
+      "lng": -122.33046,
+      "label": "Seattle, WA"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 44.97729,
+      "lng": -73.4466,
+      "label": "CHAMPLAIN, NY"
     },
     {
       "n": 10,
@@ -157,6 +410,17 @@
       "no_contact": 0,
       "creators": 0,
       "brands": 1,
+      "lat": 36.3577,
+      "lng": -94.22242,
+      "label": "Bentonville, AR"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
       "lat": 43.2292,
       "lng": -70.78595,
       "label": "South Berwick, ME"
@@ -168,9 +432,31 @@
       "no_contact": 0,
       "creators": 0,
       "brands": 1,
+      "lat": 37.68299,
+      "lng": -121.76298,
+      "label": "Livermore, CA"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
       "lat": 58.36277,
       "lng": -134.52943,
       "label": "Juneau, AK"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 38.99965,
+      "lng": -76.50314,
+      "label": "Annapolis, MD"
     },
     {
       "n": 2,
@@ -193,6 +479,17 @@
       "lat": 30.14559,
       "lng": -92.82926,
       "label": "Lacassine, LA"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 40.66831,
+      "lng": -73.555,
+      "label": "Merrick, NY"
     },
     {
       "n": 1,
@@ -234,17 +531,28 @@
       "no_contact": 0,
       "creators": 0,
       "brands": 1,
+      "lat": 29.64503,
+      "lng": -82.31005,
+      "label": "Gainesville, FL"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
       "lat": 43.06217,
       "lng": -72.66868,
       "label": "Townshend, VT"
     },
     {
-      "n": 11,
+      "n": 12,
       "contacted": 5,
-      "not_yet": 6,
+      "not_yet": 7,
       "no_contact": 0,
       "creators": 9,
-      "brands": 2,
+      "brands": 3,
       "lat": 40.75585,
       "lng": -111.89666,
       "label": "Salt Lake City, UT"
@@ -272,15 +580,15 @@
       "label": "Boston, MA"
     },
     {
-      "n": 32,
-      "contacted": 9,
-      "not_yet": 23,
+      "n": 4,
+      "contacted": 1,
+      "not_yet": 3,
       "no_contact": 0,
-      "creators": 25,
-      "brands": 7,
-      "lat": 41.88585,
-      "lng": -87.61812,
-      "label": "Chicago, IL"
+      "creators": 3,
+      "brands": 1,
+      "lat": 45.66927,
+      "lng": -111.04306,
+      "label": "Bozeman, MT"
     },
     {
       "n": 1,
@@ -294,12 +602,23 @@
       "label": "Post Falls, ID"
     },
     {
-      "n": 6,
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 34.01222,
+      "lng": -117.68806,
+      "label": "Chino, CA"
+    },
+    {
+      "n": 7,
       "contacted": 3,
-      "not_yet": 2,
+      "not_yet": 3,
       "no_contact": 1,
       "creators": 5,
-      "brands": 1,
+      "brands": 2,
       "lat": 38.2435,
       "lng": -85.7639,
       "label": "Louisville, KY"
@@ -325,6 +644,17 @@
       "lat": 32.96222,
       "lng": -79.86533,
       "label": "Charleston, SC"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 40.04487,
+      "lng": -111.73214,
+      "label": "Payson, UT"
     },
     {
       "n": 2,
@@ -360,6 +690,28 @@
       "label": "Atlanta, GA"
     },
     {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 36.89663,
+      "lng": -111.43847,
+      "label": "Page, AZ"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 36.11653,
+      "lng": -80.08312,
+      "label": "Kernersville, NC"
+    },
+    {
       "n": 7,
       "contacted": 5,
       "not_yet": 1,
@@ -371,26 +723,59 @@
       "label": "Oklahoma City, OK"
     },
     {
-      "n": 5,
+      "n": 6,
       "contacted": 1,
-      "not_yet": 4,
+      "not_yet": 5,
       "no_contact": 0,
       "creators": 2,
-      "brands": 3,
+      "brands": 4,
       "lat": 40.04973,
       "lng": -105.21426,
       "label": "Boulder, CO"
     },
     {
-      "n": 14,
-      "contacted": 10,
-      "not_yet": 4,
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
       "no_contact": 0,
-      "creators": 13,
+      "creators": 0,
       "brands": 1,
-      "lat": 33.451,
-      "lng": -112.0685,
-      "label": "Phoenix, AZ"
+      "lat": 44.78486,
+      "lng": -106.96479,
+      "label": "Sheridan, WY"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 40.1481,
+      "lng": -74.21368,
+      "label": "Howell, NJ"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 47.13673,
+      "lng": -88.56539,
+      "label": "hancock, MI"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 34.21142,
+      "lng": -118.23053,
+      "label": "Montrose, CA"
     },
     {
       "n": 1,
@@ -426,12 +811,56 @@
       "label": "Ewing, NJ"
     },
     {
-      "n": 11,
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 40.982,
+      "lng": -72.30674,
+      "label": "Sag Harbor, NY"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 40.88218,
+      "lng": -74.29603,
+      "label": "Fairfield, NJ"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 44.52314,
+      "lng": -109.07561,
+      "label": "Cody, WY"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 39.67703,
+      "lng": -75.58994,
+      "label": "New Castle, DE"
+    },
+    {
+      "n": 14,
       "contacted": 4,
-      "not_yet": 7,
+      "not_yet": 10,
       "no_contact": 0,
       "creators": 9,
-      "brands": 2,
+      "brands": 5,
       "lat": 39.84056,
       "lng": -105.00799,
       "label": "Denver, CO"
@@ -531,6 +960,28 @@
       "no_contact": 0,
       "creators": 0,
       "brands": 1,
+      "lat": 36.87063,
+      "lng": -94.38622,
+      "label": "Neosho, MO"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 29.1981,
+      "lng": -82.0974,
+      "label": "Ocala, FL"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
       "lat": 39.01911,
       "lng": -77.00761,
       "label": "Silver Spring, MD"
@@ -564,9 +1015,75 @@
       "no_contact": 0,
       "creators": 0,
       "brands": 1,
+      "lat": 33.88959,
+      "lng": -118.39956,
+      "label": "Manhattan Beach, CA"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 35.76412,
+      "lng": -78.77857,
+      "label": "Cary, NC"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 40.79643,
+      "lng": -73.07179,
+      "label": "Holbrook, NY"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 33.84268,
+      "lng": -117.95404,
+      "label": "Anaheim, CA"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
       "lat": 38.627,
       "lng": -90.1994,
       "label": "St Louis, MO"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 26.6204,
+      "lng": -81.8725,
+      "label": "Fort Myers, FL"
+    },
+    {
+      "n": 2,
+      "contacted": 0,
+      "not_yet": 2,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 2,
+      "lat": 33.75016,
+      "lng": -117.85766,
+      "label": "Santa Ana, CA"
     },
     {
       "n": 1,
@@ -586,42 +1103,196 @@
       "no_contact": 0,
       "creators": 0,
       "brands": 1,
+      "lat": 34.45974,
+      "lng": -118.48896,
+      "label": "Santa Clarita, CA"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 37.28739,
+      "lng": -107.86168,
+      "label": "Durango, CO"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 34.17161,
+      "lng": -118.28989,
+      "label": "Glendale, CA"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 42.60274,
+      "lng": -82.83639,
+      "label": "Harrison Township, MI"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
       "lat": 35.18591,
       "lng": -111.66198,
       "label": "Flagstaff, AZ"
     },
     {
-      "n": 25,
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 35.75016,
+      "lng": -97.92999,
+      "label": "Okarche, OK"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 41.27008,
+      "lng": -72.96384,
+      "label": "West Haven, CT"
+    },
+    {
+      "n": 26,
       "contacted": 8,
-      "not_yet": 15,
+      "not_yet": 16,
       "no_contact": 2,
       "creators": 19,
-      "brands": 6,
+      "brands": 7,
       "lat": 30.21069,
       "lng": -97.94275,
       "label": "Austin, TX"
     },
     {
-      "n": 27,
-      "contacted": 12,
-      "not_yet": 14,
-      "no_contact": 1,
-      "creators": 22,
-      "brands": 5,
-      "lat": 47.61144,
-      "lng": -122.33046,
-      "label": "Seattle, WA"
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 35.98154,
+      "lng": -78.53921,
+      "label": "Wake Forest, NC"
     },
     {
-      "n": 18,
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 43.68433,
+      "lng": -70.46797,
+      "label": "Gorham, ME"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 33.4273,
+      "lng": -111.9307,
+      "label": "Tempe, AZ"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 43.68427,
+      "lng": -70.35803,
+      "label": "Westbrook, ME"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 33.1694,
+      "lng": -117.242,
+      "label": "Vista, CA"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 33.89246,
+      "lng": -118.29612,
+      "label": "Gardena, CA"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 45.05001,
+      "lng": -92.83003,
+      "label": "Stillwater, MN"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 37.2152,
+      "lng": -93.295,
+      "label": "Springfield, MO"
+    },
+    {
+      "n": 23,
       "contacted": 10,
-      "not_yet": 8,
+      "not_yet": 13,
       "no_contact": 0,
       "creators": 14,
-      "brands": 4,
+      "brands": 9,
       "lat": 45.04958,
       "lng": -93.24609,
       "label": "Minneapolis, MN"
+    },
+    {
+      "n": 3,
+      "contacted": 0,
+      "not_yet": 3,
+      "no_contact": 0,
+      "creators": 2,
+      "brands": 1,
+      "lat": 35.0455,
+      "lng": -85.3081,
+      "label": "Chattanooga, TN"
     },
     {
       "n": 1,
@@ -663,6 +1334,17 @@
       "no_contact": 0,
       "creators": 0,
       "brands": 1,
+      "lat": 40.57938,
+      "lng": -111.88162,
+      "label": "Sandy, UT"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
       "lat": 39.73781,
       "lng": -104.81523,
       "label": "Aurora, CO"
@@ -688,6 +1370,17 @@
       "lat": 43.17909,
       "lng": -71.81592,
       "label": "Henniker, NH"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 45.66927,
+      "lng": -111.04306,
+      "label": "BOZEMAN, MT"
     },
     {
       "n": 1,
@@ -762,6 +1455,17 @@
       "no_contact": 0,
       "creators": 0,
       "brands": 1,
+      "lat": 34.0197,
+      "lng": -117.9577,
+      "label": "City of Industry, CA"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
       "lat": 43.7266,
       "lng": -87.82423,
       "label": "Sheboygan Falls, WI"
@@ -787,6 +1491,17 @@
       "lat": 33.85833,
       "lng": -118.06389,
       "label": "Cerritos, CA"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 36.56864,
+      "lng": -82.18186,
+      "label": "Bristol, TN"
     },
     {
       "n": 1,
@@ -839,9 +1554,9 @@
       "no_contact": 0,
       "creators": 0,
       "brands": 1,
-      "lat": 33.75016,
-      "lng": -117.85766,
-      "label": "Santa Ana, CA"
+      "lat": 34.01763,
+      "lng": -118.49071,
+      "label": "Santa Monica, CA"
     },
     {
       "n": 9,
@@ -875,6 +1590,28 @@
       "lat": 38.91222,
       "lng": -77.01769,
       "label": "Washington, DC"
+    },
+    {
+      "n": 3,
+      "contacted": 1,
+      "not_yet": 2,
+      "no_contact": 0,
+      "creators": 2,
+      "brands": 1,
+      "lat": 43.66056,
+      "lng": -70.25886,
+      "label": "Portland, ME"
+    },
+    {
+      "n": 3,
+      "contacted": 0,
+      "not_yet": 3,
+      "no_contact": 0,
+      "creators": 2,
+      "brands": 1,
+      "lat": 39.73775,
+      "lng": -75.54966,
+      "label": "Wilmington, DE"
     },
     {
       "n": 1,
@@ -938,6 +1675,28 @@
       "no_contact": 0,
       "creators": 0,
       "brands": 1,
+      "lat": 38.5816,
+      "lng": -121.4933,
+      "label": "SACRAMENTO, CA"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 43.82163,
+      "lng": -91.75365,
+      "label": "Rushford, MN"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
       "lat": 40.39585,
       "lng": -111.85061,
       "label": "Lehi, UT"
@@ -949,9 +1708,53 @@
       "no_contact": 0,
       "creators": 0,
       "brands": 1,
+      "lat": 34.1207,
+      "lng": -118.11174,
+      "label": "San Marino, CA"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
       "lat": 42.36361,
       "lng": -87.84472,
       "label": "Waukegan, IL"
+    },
+    {
+      "n": 5,
+      "contacted": 0,
+      "not_yet": 5,
+      "no_contact": 0,
+      "creators": 4,
+      "brands": 1,
+      "lat": 32.06763,
+      "lng": -81.10239,
+      "label": "Savannah, GA"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 41.21804,
+      "lng": -73.89241,
+      "label": "Croton On Hudson, NY"
+    },
+    {
+      "n": 2,
+      "contacted": 0,
+      "not_yet": 2,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 2,
+      "lat": 41.12222,
+      "lng": -73.43583,
+      "label": "Norwalk, CT"
     },
     {
       "n": 1,
@@ -974,6 +1777,17 @@
       "lat": 34.0382,
       "lng": -118.7082,
       "label": "Malibu, CA"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 41.03296,
+      "lng": -73.76523,
+      "label": "White Plains, NY"
     },
     {
       "n": 1,
@@ -1015,17 +1829,6 @@
       "no_contact": 0,
       "creators": 0,
       "brands": 1,
-      "lat": 41.12222,
-      "lng": -73.43583,
-      "label": "Norwalk, CT"
-    },
-    {
-      "n": 1,
-      "contacted": 0,
-      "not_yet": 1,
-      "no_contact": 0,
-      "creators": 0,
-      "brands": 1,
       "lat": 41.28153,
       "lng": -73.02872,
       "label": "Orange, CT"
@@ -1040,6 +1843,17 @@
       "lat": 40.6335,
       "lng": -75.3952,
       "label": "Bethlehem, PA"
+    },
+    {
+      "n": 2,
+      "contacted": 0,
+      "not_yet": 2,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 2,
+      "lat": 33.7357,
+      "lng": -117.7672,
+      "label": "Irvine, CA"
     },
     {
       "n": 1,
@@ -1125,6 +1939,17 @@
       "no_contact": 0,
       "creators": 0,
       "brands": 1,
+      "lat": 33.97973,
+      "lng": -117.73079,
+      "label": "Chino Hills, CA"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
       "lat": 39.79429,
       "lng": -76.9812,
       "label": "Hanover, PA"
@@ -1169,6 +1994,17 @@
       "no_contact": 0,
       "creators": 0,
       "brands": 1,
+      "lat": 38.73461,
+      "lng": -121.23397,
+      "label": "Roseville, CA"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
       "lat": 44.89178,
       "lng": -116.07887,
       "label": "McCall, ID"
@@ -1191,9 +2027,42 @@
       "no_contact": 0,
       "creators": 0,
       "brands": 1,
+      "lat": 47.90344,
+      "lng": -91.85704,
+      "label": "Ely, MN"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
       "lat": 42.54286,
       "lng": -72.53284,
       "label": "Montague, MA"
+    },
+    {
+      "n": 2,
+      "contacted": 0,
+      "not_yet": 2,
+      "no_contact": 0,
+      "creators": 1,
+      "brands": 1,
+      "lat": 34.0631,
+      "lng": -117.6197,
+      "label": "Ontario, CA"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 45.19652,
+      "lng": -109.26881,
+      "label": "Red Lodge, MT"
     },
     {
       "n": 1,
@@ -1205,6 +2074,28 @@
       "lat": 39.33122,
       "lng": -85.47353,
       "label": "Greensburg, IN"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 44.55278,
+      "lng": -92.54856,
+      "label": "Red Wing, MN"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 44.08048,
+      "lng": -93.21914,
+      "label": "Owatonna, MN"
     },
     {
       "n": 1,
@@ -1394,6 +2285,17 @@
       "label": "Norton, MA"
     },
     {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 35.97248,
+      "lng": -85.90553,
+      "label": "Dowelltown, TN"
+    },
+    {
       "n": 15,
       "contacted": 10,
       "not_yet": 5,
@@ -1414,6 +2316,17 @@
       "lat": 43.38806,
       "lng": -70.5478,
       "label": "Kennebunk, ME"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 40.19833,
+      "lng": -83.01028,
+      "label": "LEWIS CENTER, OH"
     },
     {
       "n": 1,
@@ -1458,6 +2371,28 @@
       "lat": 39.7902,
       "lng": -85.8141,
       "label": "Greenfield, IN"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 26.43505,
+      "lng": -81.81024,
+      "label": "Estero, FL"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 46.72604,
+      "lng": -92.45282,
+      "label": "Cloquet, MN"
     },
     {
       "n": 1,
@@ -1557,6 +2492,17 @@
       "lat": 44.40422,
       "lng": -72.30644,
       "label": "Cabot, VT"
+    },
+    {
+      "n": 1,
+      "contacted": 0,
+      "not_yet": 1,
+      "no_contact": 0,
+      "creators": 0,
+      "brands": 1,
+      "lat": 33.82682,
+      "lng": -118.31183,
+      "label": "Torrance, CA"
     },
     {
       "n": 1,
@@ -1779,17 +2725,6 @@
       "label": "Houston, TX"
     },
     {
-      "n": 30,
-      "contacted": 11,
-      "not_yet": 17,
-      "no_contact": 2,
-      "creators": 30,
-      "brands": 0,
-      "lat": 32.99685,
-      "lng": -96.79211,
-      "label": "Dallas, TX"
-    },
-    {
       "n": 1,
       "contacted": 0,
       "not_yet": 1,
@@ -1964,17 +2899,6 @@
       "lat": 28.49882,
       "lng": -80.58248,
       "label": "Orlando, Fl"
-    },
-    {
-      "n": 7,
-      "contacted": 2,
-      "not_yet": 5,
-      "no_contact": 0,
-      "creators": 7,
-      "brands": 0,
-      "lat": 38.5816,
-      "lng": -121.4933,
-      "label": "Sacramento, CA"
     },
     {
       "n": 1,
@@ -2890,17 +3814,6 @@
       "label": "Bakersfield CA"
     },
     {
-      "n": 2,
-      "contacted": 0,
-      "not_yet": 2,
-      "no_contact": 0,
-      "creators": 2,
-      "brands": 0,
-      "lat": 35.0455,
-      "lng": -85.3081,
-      "label": "Chattanooga, TN"
-    },
-    {
       "n": 1,
       "contacted": 1,
       "not_yet": 0,
@@ -2934,17 +3847,6 @@
       "label": "Columbia SC"
     },
     {
-      "n": 2,
-      "contacted": 1,
-      "not_yet": 1,
-      "no_contact": 0,
-      "creators": 2,
-      "brands": 0,
-      "lat": 43.66056,
-      "lng": -70.25886,
-      "label": "Portland, ME"
-    },
-    {
       "n": 1,
       "contacted": 0,
       "not_yet": 1,
@@ -2954,17 +3856,6 @@
       "lat": 40.76466,
       "lng": -74.14711,
       "label": "Kearny, NJ"
-    },
-    {
-      "n": 4,
-      "contacted": 0,
-      "not_yet": 4,
-      "no_contact": 0,
-      "creators": 4,
-      "brands": 0,
-      "lat": 32.06763,
-      "lng": -81.10239,
-      "label": "Savannah, GA"
     },
     {
       "n": 4,
@@ -3240,17 +4131,6 @@
       "lat": 41.261,
       "lng": -95.9376,
       "label": "Omaha NE"
-    },
-    {
-      "n": 1,
-      "contacted": 0,
-      "not_yet": 1,
-      "no_contact": 0,
-      "creators": 1,
-      "brands": 0,
-      "lat": 34.0631,
-      "lng": -117.6197,
-      "label": "Ontario, CA"
     },
     {
       "n": 1,
@@ -4111,17 +4991,6 @@
       "label": "Kent, OH"
     },
     {
-      "n": 3,
-      "contacted": 1,
-      "not_yet": 2,
-      "no_contact": 0,
-      "creators": 3,
-      "brands": 0,
-      "lat": 41.261,
-      "lng": -95.9376,
-      "label": "Omaha, NE"
-    },
-    {
       "n": 2,
       "contacted": 0,
       "not_yet": 2,
@@ -4362,17 +5231,6 @@
       "lat": 34.84716,
       "lng": -82.40605,
       "label": "Greenville, SC"
-    },
-    {
-      "n": 3,
-      "contacted": 1,
-      "not_yet": 2,
-      "no_contact": 0,
-      "creators": 3,
-      "brands": 0,
-      "lat": 45.66927,
-      "lng": -111.04306,
-      "label": "Bozeman, MT"
     },
     {
       "n": 1,
@@ -6210,17 +7068,6 @@
       "lat": 42.37705,
       "lng": -71.12561,
       "label": "Cambridge MA"
-    },
-    {
-      "n": 2,
-      "contacted": 0,
-      "not_yet": 2,
-      "no_contact": 0,
-      "creators": 2,
-      "brands": 0,
-      "lat": 39.73775,
-      "lng": -75.54966,
-      "label": "Wilmington, DE"
     },
     {
       "n": 1,
