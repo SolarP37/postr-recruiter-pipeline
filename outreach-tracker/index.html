@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Postr outreach tracker</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" crossorigin="">
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" crossorigin="">
+<style>
+:root{color-scheme:dark;--bg:#0b0f14;--panel:#121820;--line:#283241;--text:#edf2f7;--muted:#8f9bad;--accent:#69d3ae;--blue:#7cb7ff;--amber:#f5c66d;--red:#ff8c8c;--creator:#5b9fff;--brand:#e8b86d}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(1100px 520px at 88% -12%,#1a3a4c 0,#0b0f14 55%);color:var(--text);font:14px/1.45 Inter,ui-sans-serif,system-ui,sans-serif}
+main{max-width:1480px;margin:0 auto;padding:28px 22px 56px}
+header{display:flex;justify-content:space-between;gap:16px;margin-bottom:20px;flex-wrap:wrap}
+h1{margin:0;font-size:28px;letter-spacing:-.03em}.eyebrow{color:var(--accent);text-transform:uppercase;letter-spacing:.14em;font-size:11px;font-weight:700}
+.subtitle{color:var(--muted);margin-top:4px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:14px}
+.card{background:rgba(18,24,32,.92);border:1px solid var(--line);border-radius:14px;padding:14px}.card .label{color:var(--muted);font-size:12px}.card .value{font-size:22px;font-weight:700;margin-top:4px}
+.toolbar,.layout,.table-wrap{background:rgba(18,24,32,.92);border:1px solid var(--line);border-radius:14px}
+.toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:end;padding:14px;margin-bottom:14px}
+label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted)}
+input,select,button{background:#0f151c;border:1px solid var(--line);color:var(--text);border-radius:8px;padding:8px 10px}
+button{cursor:pointer}.chip{margin-left:auto;color:var(--muted)}
+.layout{display:grid;grid-template-columns:1.4fr 1fr;gap:0;overflow:hidden;margin-bottom:14px}
+@media(max-width:900px){.layout{grid-template-columns:1fr}}
+.map-wrap{position:relative;min-height:420px}#map{height:420px;width:100%}
+.map-legend{position:absolute;z-index:500;left:12px;bottom:12px;background:rgba(12,18,26,.92);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:11px;pointer-events:none}
+.map-legend .row{display:flex;align-items:center;gap:8px;margin:3px 0}
+.dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.dot.contacted{background:#69d3ae}.dot.not_yet{background:#7cb7ff}.dot.no_contact{background:#ff8c8c}
+.detail{padding:16px;min-height:420px}.detail h2{margin:0 0 8px;font-size:16px}.detail .empty{color:var(--muted);margin:40px 0;text-align:center}
+.detail dl{display:grid;grid-template-columns:110px 1fr;gap:6px 10px;margin:0}.detail dt{color:var(--muted);font-size:12px}.detail dd{margin:0;word-break:break-word}
+.table-wrap{overflow:auto;max-height:520px}
+table{width:100%;border-collapse:collapse}th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;font-size:13px}
+th{position:sticky;top:0;background:#151c26;cursor:pointer;color:var(--muted);font-weight:600}
+tr:hover{background:rgba(255,255,255,.03);cursor:pointer}
+.badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;border:1px solid var(--line)}
+.badge.contacted{color:#69d3ae}.badge.not_yet{color:#7cb7ff}.badge.no_contact{color:#ff8c8c}
+.leaflet-container{background:#0a1218}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <div>
+    <div class="eyebrow">Postr · lite</div>
+    <h1>Outreach tracker</h1>
+    <div class="subtitle" id="updated">Loading…</div>
+  </div>
+  <div class="subtitle" id="domainTag"></div>
+</header>
+<section class="cards" id="cards"></section>
+<section class="toolbar">
+  <label>Type<select id="kind"><option value="">All</option><option value="creator">Creators</option><option value="brand">Brands</option></select></label>
+  <label>Status<select id="status"><option value="">All</option><option value="contacted">Contacted</option><option value="not_yet">Not yet</option><option value="no_contact">No contact</option></select></label>
+  <label>Search<input id="search" type="search" placeholder="email, name, niche, city, domain…"></label>
+  <label>Domain<input id="domainFilter" type="search" placeholder="postrreach.com"></label>
+  <button type="button" id="reset">Reset</button>
+  <span class="chip" id="count">—</span>
+</section>
+<section class="layout">
+  <div class="map-wrap"><div id="map"></div>
+    <div class="map-legend">
+      <div class="row"><span class="dot contacted"></span> Contacted</div>
+      <div class="row"><span class="dot not_yet"></span> Not yet</div>
+      <div class="row"><span class="dot no_contact"></span> No contact</div>
+      <div class="row">Circle size = contacts in city</div>
+    </div>
+  </div>
+  <div class="detail" id="detail"><div class="empty">Click a map city or table row for details</div></div>
+</section>
+<section class="table-wrap">
+<table>
+<thead><tr>
+  <th data-sort="name">Name</th><th data-sort="email">Email</th><th data-sort="kind">Type</th>
+  <th data-sort="status">Status</th><th data-sort="niche">Niche</th><th data-sort="city_state">Location</th><th data-sort="domain">Domain</th>
+</tr></thead>
+<tbody id="rows"></tbody>
+</table>
+</section>
+</main>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js" crossorigin=""></script>
+<script>
+const $=id=>document.getElementById(id);
+let meta=null, contacts=[], sortKey='name', sortDir=1, map=null, cluster=null;
+
+function statusColor(s){return s==='contacted'?'#69d3ae':s==='no_contact'?'#ff8c8c':'#7cb7ff'}
+function dominantStatus(p){
+  const entries=[['contacted',p.contacted||0],['not_yet',p.not_yet||0],['no_contact',p.no_contact||0]];
+  entries.sort((a,b)=>b[1]-a[1]); return entries[0][0];
+}
+function card(label,value){return `<div class="card"><div class="label">${label}</div><div class="value">${value}</div></div>`}
+function renderCards(){
+  const s=meta.stats||{};
+  $('cards').innerHTML=[
+    card('Total', s.total??'—'), card('Contacted', s.contacted??'—'), card('Not yet', s.not_yet??'—'),
+    card('No contact', s.no_contact??'—'), card('Creators', s.creators??'—'), card('Brands', s.brands??'—'),
+    card('Mapped cities', (meta.places||[]).length), card('Sent today', s.sent_today??'—'),
+  ].join('');
+}
+function showPlace(p){
+  $('detail').innerHTML=`<h2>${p.label||'Location'}</h2>
+  <dl>
+    <dt>Contacts</dt><dd>${p.n}</dd>
+    <dt>Creators</dt><dd>${p.creators||0}</dd>
+    <dt>Brands</dt><dd>${p.brands||0}</dd>
+    <dt>Contacted</dt><dd>${p.contacted||0}</dd>
+    <dt>Not yet</dt><dd>${p.not_yet||0}</dd>
+    <dt>No contact</dt><dd>${p.no_contact||0}</dd>
+  </dl>`;
+}
+function showContact(c){
+  if(!c){$('detail').innerHTML='<div class="empty">Click a map city or table row for details</div>';return}
+  $('detail').innerHTML=`<h2>${c.name||c.email||'Contact'}</h2>
+  <dl>
+    <dt>Email</dt><dd>${c.email||'—'}</dd>
+    <dt>Type</dt><dd>${c.kind||'—'}</dd>
+    <dt>Status</dt><dd><span class="badge ${c.status||''}">${c.status||'—'}</span></dd>
+    <dt>Niche</dt><dd>${c.niche||'—'}</dd>
+    <dt>Handle</dt><dd>${c.handle||'—'}</dd>
+    <dt>Location</dt><dd>${c.city_state||'—'}</dd>
+    <dt>Domain</dt><dd>${c.domain||'—'}</dd>
+    <dt>Sent</dt><dd>${c.sent_at||'—'}</dd>
+  </dl>`;
+}
+function initMap(){
+  map=L.map('map',{scrollWheelZoom:true}).setView([39.8,-98.5],4);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'&copy; OpenStreetMap',maxZoom:18}).addTo(map);
+  cluster=L.markerClusterGroup({showCoverageOnHover:false,maxClusterRadius:40});
+  (meta.places||[]).forEach(p=>{
+    if(p.lat==null||p.lng==null) return;
+    const st=dominantStatus(p);
+    const r=Math.max(8, Math.min(28, 6+Math.sqrt(p.n)*3));
+    const m=L.circleMarker([p.lat,p.lng],{radius:r,color:statusColor(st),fillColor:statusColor(st),fillOpacity:.55,weight:2});
+    m.bindTooltip(`${p.label||'City'} · ${p.n}`);
+    m.on('click',()=>showPlace(p));
+    cluster.addLayer(m);
+  });
+  map.addLayer(cluster);
+  setTimeout(()=>map.invalidateSize(),50);
+}
+function filtered(){
+  const kind=$('kind').value, status=$('status').value, q=$('search').value.trim().toLowerCase(), dom=$('domainFilter').value.trim().toLowerCase();
+  return contacts.filter(c=>{
+    if(kind && c.kind!==kind) return false;
+    if(status && c.status!==status) return false;
+    if(dom && !(c.domain||'').toLowerCase().includes(dom)) return false;
+    if(q){
+      const hay=[c.email,c.name,c.niche,c.handle,c.city_state,c.domain].join(' ').toLowerCase();
+      if(!hay.includes(q)) return false;
+    }
+    return true;
+  });
+}
+function renderTable(){
+  let rows=filtered();
+  rows.sort((a,b)=>{
+    const av=(a[sortKey]??'').toString().toLowerCase(), bv=(b[sortKey]??'').toString().toLowerCase();
+    if(av<bv) return -1*sortDir; if(av>bv) return 1*sortDir; return 0;
+  });
+  $('count').textContent=`${rows.length.toLocaleString()} shown · ${contacts.length.toLocaleString()} total`;
+  const max=800;
+  const slice=rows.slice(0,max);
+  $('rows').innerHTML=slice.map(c=>`<tr data-email="${(c.email||'').replace(/"/g,'&quot;')}">
+    <td>${c.name||'—'}</td><td>${c.email||'—'}</td><td>${c.kind||'—'}</td>
+    <td><span class="badge ${c.status||''}">${c.status||'—'}</span></td>
+    <td>${c.niche||'—'}</td><td>${c.city_state||'—'}</td><td>${c.domain||'—'}</td>
+  </tr>`).join('')+(rows.length>max?`<tr><td colspan="7" style="color:var(--muted)">Showing first ${max}. Narrow search to see more.</td></tr>`:'');
+}
+function render(){renderTable()}
+async function load(){
+  meta=await (await fetch('meta.json',{cache:'no-store'})).json();
+  $('domainTag').textContent=meta.domain||'';
+  $('updated').textContent=`${meta.domain||''} · snapshot ${meta.generated_at||''} · city-map lite`;
+  renderCards(); initMap();
+  const man=await (await fetch('manifest.json',{cache:'no-store'})).json();
+  const parts=await Promise.all((man.chunks||[]).map(f=>fetch(f,{cache:'no-store'}).then(r=>r.json())));
+  contacts=parts.flat();
+  render();
+}
+['kind','status','search','domainFilter'].forEach(id=>$(id).addEventListener('input',render));
+$('reset').onclick=()=>{['kind','status','search','domainFilter'].forEach(id=>$(id).value='');showContact(null);render()};
+document.querySelectorAll('[data-sort]').forEach(b=>b.onclick=()=>{const k=b.dataset.sort; if(sortKey===k) sortDir*=-1; else {sortKey=k;sortDir=1;} render()});
+$('rows').addEventListener('click',ev=>{
+  const tr=ev.target.closest('tr[data-email]'); if(!tr) return;
+  const c=contacts.find(x=>x.email===tr.dataset.email); showContact(c);
+  if(c&&c.lat!=null&&map) map.setView([c.lat,c.lng], Math.max(map.getZoom(),6));
+});
+load().catch(e=>{ $('updated').textContent='Failed to load: '+e.message; });
+</script>
+</body>
+</html>
