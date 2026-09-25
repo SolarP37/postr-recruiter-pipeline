@@ -1,7 +1,7 @@
 import { randomBytes } from "node:crypto";
 import { NextResponse } from "next/server";
 import { requireApiSession } from "@/lib/api-auth";
-import { GMAIL_SCOPE, googleOAuthClient } from "@/lib/gmail";
+import { GMAIL_SCOPES, googleOAuthClient } from "@/lib/gmail";
 
 export async function GET() {
   const unauthorized = await requireApiSession();
@@ -12,7 +12,7 @@ export async function GET() {
     const url = client.generateAuthUrl({
       access_type: "offline",
       prompt: "consent",
-      scope: [GMAIL_SCOPE],
+      scope: [...GMAIL_SCOPES],
       state,
       include_granted_scopes: false,
     });

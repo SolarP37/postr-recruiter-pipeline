@@ -39,8 +39,8 @@ export async function GET(request: Request) {
     const response = NextResponse.redirect(new URL("/settings", request.url));
     response.cookies.set("google_oauth_state", "", { path: "/", maxAge: 0 });
     return response;
-  } catch (error) {
-    console.error("Google OAuth callback failed", error);
+  } catch {
+    console.error("Google OAuth callback failed; exception detail was redacted.");
     return NextResponse.json({ error: "Unable to connect Gmail." }, { status: 500 });
   }
 }

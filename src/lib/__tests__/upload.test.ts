@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { MAX_UPLOAD_BYTES, detectedMimeType, validateUpload } from "@/lib/upload";
+import {
+  MAX_UPLOAD_BYTES,
+  detectedMimeType,
+  isAllowedMimeType,
+  validateUpload,
+} from "@/lib/upload";
 
 const png = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 const jpeg = new Uint8Array([0xff, 0xd8, 0xff, 0xe0]);
@@ -25,5 +30,22 @@ describe("upload validation", () => {
   it("rejects executable content", () => {
     const exe = new Uint8Array([0x4d, 0x5a, 0x90]);
     expect(validateUpload({ size: exe.length, type: "image/png", bytes: exe }).valid).toBe(false);
+  });
+
+  it("rejects truncated upload bodies", () => {
+    expect(validateUpload({
+      size: png.length + 1,
+      type: "image/png",
+      bytes: png,
+    })).toEqual({
+      valid: false,
+      error: "The uploaded image is incomplete.",
+    });
+  });
+
+  it("allows only image response content types", () => {
+    expect(isAllowedMimeType("image/png")).toBe(true);
+    expect(isAllowedMimeType("text/html")).toBe(false);
+    expect(isAllowedMimeType("image/svg+xml")).toBe(false);
   });
 });

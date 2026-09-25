@@ -6,9 +6,9 @@ import { useState } from "react";
 export function TrackingActions({ prospectId, status }: { prospectId: string; status: string }) {
   const router = useRouter();
   const [message, setMessage] = useState("");
-  async function action(name: string) {
+  async function action(name: string, extra: Record<string, unknown> = {}) {
     const response = await fetch(`/api/prospects/${prospectId}/tracking`, {
-      method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: name }),
+      method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: name, ...extra }),
     });
     const result = await response.json();
     if (response.ok && result.referralLink && name === "copy_referral") {
@@ -25,6 +25,13 @@ export function TrackingActions({ prospectId, status }: { prospectId: string; st
     <button className="button-secondary" onClick={() => action("copy_referral")}>Copy referral link</button>
     <button className="button-secondary" onClick={() => action("referral_sent")}>Mark referral sent</button>
     <button className="button-secondary" onClick={() => action("joined")}>Confirm signup</button>
+    <button className="button-secondary" onClick={() => action("campaign_started")}>Record campaign start</button>
+    <button className="button-secondary" onClick={() => action("campaign_completed")}>Record campaign completion</button>
+    <button className="button-secondary" onClick={() => {
+      const value = window.prompt("Commission amount");
+      if (value !== null && Number.isFinite(Number(value))) action("record_commission", { amount: Number(value) });
+    }}>Record commission</button>
+    <button className="button-secondary button-danger" onClick={() => action("hard_bounce")}>Record hard bounce</button>
     {message && <p className="w-full text-xs text-slate-500">{message}</p>}
   </div>;
 }

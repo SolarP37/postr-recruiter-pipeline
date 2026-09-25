@@ -3,6 +3,13 @@ import { db } from "@/lib/db";
 import { decryptToken, encryptToken } from "@/lib/token-crypto";
 
 export const GMAIL_SCOPE = "https://www.googleapis.com/auth/gmail.compose";
+export const GMAIL_CAPTURE_SCOPE =
+  "https://www.googleapis.com/auth/gmail.readonly";
+export const GMAIL_SCOPES = [GMAIL_SCOPE, GMAIL_CAPTURE_SCOPE] as const;
+
+export function hasGmailCaptureScope(scope: string | null | undefined) {
+  return Boolean(scope?.split(/\s+/).includes(GMAIL_CAPTURE_SCOPE));
+}
 
 export function googleOAuthClient() {
   const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI } = process.env;
@@ -36,16 +43,44 @@ export async function connectedGoogleClient() {
   return client;
 }
 
-export function gmailRawMessage(to: string, subject: string, body: string): string {
+export function gmailRawMessage(
+  to: string,
+  subject: string,
+  body: string,
+  htmlBody?: string | null,
+): string {
   const encodedSubject = `=?UTF-8?B?${Buffer.from(subject).toString("base64")}?=`;
+  if (!htmlBody) {
+    const lines = [
+      `To: ${to}`,
+      `Subject: ${encodedSubject}`,
+      "MIME-Version: 1.0",
+      'Content-Type: text/plain; charset="UTF-8"',
+      "Content-Transfer-Encoding: 8bit",
+      "",
+      body,
+    ];
+    return Buffer.from(lines.join("\r\n")).toString("base64url");
+  }
+
+  const boundary = "postr-recruiter-alternative";
   const lines = [
     `To: ${to}`,
     `Subject: ${encodedSubject}`,
     "MIME-Version: 1.0",
+    `Content-Type: multipart/alternative; boundary="${boundary}"`,
+    "",
+    `--${boundary}`,
     'Content-Type: text/plain; charset="UTF-8"',
     "Content-Transfer-Encoding: 8bit",
     "",
     body,
+    `--${boundary}`,
+    'Content-Type: text/html; charset="UTF-8"',
+    "Content-Transfer-Encoding: 8bit",
+    "",
+    htmlBody,
+    `--${boundary}--`,
   ];
   return Buffer.from(lines.join("\r\n")).toString("base64url");
 }

@@ -34,7 +34,9 @@
 - [x] Track referral link copies, marked sends, and manually confirmed joins.
 - [x] Complete end-to-end tests in mock mode.
 - [x] Prepare the GitHub, Vercel, OAuth, and environment checklists.
-- [ ] Create the owner-approved GitHub repository and Vercel project.
+- [x] Create the owner-approved GitHub repository.
+- [x] Add GitHub Actions checks for lint, type-check, tests, and production builds.
+- [ ] Create the owner-approved Vercel project.
 - [ ] Configure production environment variables, Google redirect URIs, and the
   production database migration path.
 
@@ -50,3 +52,27 @@ that require owner approval.
   failures.
 - [x] Hash opt-out identifiers in audit metadata.
 - [x] Hide demo credentials whenever demo mode is not active.
+
+## Patrick Conlon recruiter integration
+
+- [x] Centralize Patrick's recruiter identity, referral code, canonical URL,
+  creator threshold, QR metadata, and safe sending mode.
+- [x] Crop the official Postr QR without resampling and verify its decoded URL.
+- [x] Add qualification, contact-source, personalization-source, follow-up, and
+  outcome fields through additive local and PostgreSQL schema changes.
+- [x] Require eligible qualification, duplicate checks, and suppression checks
+  before standard recruitment drafting.
+- [x] Add concise HTML and plain-text Postr email templates with editable
+  desktop/mobile previews and a Gmail multipart draft.
+- [x] Add recruiter dashboard identity/actions and clearly mark unavailable
+  Postr/QR attribution metrics.
+- [x] Enforce draft-only delivery by default and stop follow-ups on reply,
+  bounce, opt-out, registration, or suppression.
+- [x] Add first-class creator and brand lead types without changing existing
+  creator records.
+- [x] Add separate brand review context and concise brand outreach templates.
+- [x] Add manual public-business-contact intake for search and website research.
+- [x] Split dashboard lead and qualification metrics by creator and brand.
+- [x] Add a three-column prospect board with inline draft and delivery history.
+- [x] Add broad public-location evidence, IANA time-zone planning, and a
+  human-reviewed three-attempt outreach sequence.

@@ -1,6 +1,12 @@
 import type { ProspectStatus } from "@prisma/client";
 
-export type ReviewAction = "approve" | "edit" | "reject" | "no_email" | "suppress";
+export type ReviewAction =
+  | "approve"
+  | "edit"
+  | "reject"
+  | "no_email"
+  | "reprocess"
+  | "suppress";
 export type TrackingAction =
   | "replied"
   | "interested"

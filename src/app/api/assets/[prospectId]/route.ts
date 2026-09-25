@@ -1,8 +1,8 @@
-import { readFile } from "node:fs/promises";
-import path from "node:path";
 import { NextResponse } from "next/server";
 import { requireApiSession } from "@/lib/api-auth";
+import { assetStorageForReference } from "@/lib/asset-storage";
 import { db } from "@/lib/db";
+import { isAllowedMimeType } from "@/lib/upload";
 
 export async function GET(_request: Request, context: { params: Promise<{ prospectId: string }> }) {
   const unauthorized = await requireApiSession();
@@ -10,14 +10,27 @@ export async function GET(_request: Request, context: { params: Promise<{ prospe
   const { prospectId } = await context.params;
   const asset = await db.sourceAsset.findFirst({ where: { prospectId }, orderBy: { createdAt: "desc" } });
   if (!asset) return NextResponse.json({ error: "Asset not found." }, { status: 404 });
-  const filename = path.basename(asset.filePath);
-  if (asset.filePath !== path.join("storage", "uploads", filename)) {
-    return NextResponse.json({ error: "Invalid asset path." }, { status: 400 });
-  }
-  const filePath = path.join(process.cwd(), "storage", "uploads", filename);
   try {
-    const bytes = await readFile(filePath);
-    return new Response(bytes, { headers: { "content-type": asset.mimeType, "cache-control": "private, no-store" } });
+    const stored = await assetStorageForReference(asset.filePath).read(asset.filePath);
+    if (!stored) {
+      return NextResponse.json({ error: "Asset is unavailable." }, { status: 404 });
+    }
+    const contentType = isAllowedMimeType(stored.contentType)
+      ? stored.contentType
+      : isAllowedMimeType(asset.mimeType)
+        ? asset.mimeType
+        : null;
+    if (!contentType) {
+      return NextResponse.json({ error: "Asset is unavailable." }, { status: 404 });
+    }
+    return new Response(stored.body, {
+      headers: {
+        "content-type": contentType,
+        "cache-control": "private, no-store",
+        "content-security-policy": "sandbox",
+        "x-content-type-options": "nosniff",
+      },
+    });
   } catch {
     return NextResponse.json({ error: "Asset is unavailable." }, { status: 404 });
   }

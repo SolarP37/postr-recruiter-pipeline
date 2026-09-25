@@ -1,7 +1,8 @@
 import type { ContactExtractionResult } from "@/lib/vision/schema";
+import type { AllowedMimeType } from "@/lib/upload";
 
 export interface VisionProvider {
   extractPublicContactInformation(
-    imagePath: string,
+    image: { bytes: Uint8Array; mimeType: AllowedMimeType },
   ): Promise<ContactExtractionResult>;
 }

@@ -1,0 +1,14 @@
+import { describe, expect, it } from "vitest";
+import { evaluateAutonomyPolicy, type AutonomousOutreachConfig, type AutonomyPolicyInput } from "@/lib/autonomy-policy";
+
+const enabledConfig: AutonomousOutreachConfig = { enabled: true, paused: false, allowedCountries: new Set(["US"]), dailySendLimit: 5, domainDailySendLimit: 1, evidenceMaxAgeDays: 180, contactEmail: "outreach@postroutreach.com", postalAddress: "100 Main Street, Austin, TX 78701" };
+const eligible: AutonomyPolicyInput = { action: "SEND_INITIAL", countryCode: "US", permissionBasis: "EXPRESS_CONSENT", permissionEvidence: "Opted in through the creator partnership form.", permissionCheckedAt: new Date("2026-08-01T00:00:00Z"), hasVerifiedContactEvidence: true, qualificationStatus: "QUALIFIED", email: "creator@domain.example", isDuplicate: false, isSuppressed: false, doNotContact: false, replyReceivedAt: null, hardBouncedAt: null, optedOutAt: null, joinedAt: null, sentAt: null, existingDeliveryAttempt: false, dailySentCount: 0, domainDailySentCount: 0, now: new Date("2026-08-23T00:00:00Z") };
+
+describe("bounded autonomous outreach policy", () => {
+  it("allows only a fully evidenced consent-based message", () => { expect(evaluateAutonomyPolicy(eligible, enabledConfig)).toMatchObject({ outcome: "ALLOW" }); });
+  it("keeps public contact discovery in review rather than treating it as consent", () => { const decision = evaluateAutonomyPolicy({ ...eligible, permissionBasis: "PUBLICLY_LISTED_BUSINESS_CONTACT" }, enabledConfig); expect(decision.outcome).toBe("REVIEW"); expect(decision.reasons.join(" ")).toContain("express consent"); });
+  it("defaults to shadow mode and rejects fixture sender identity", () => { const decision = evaluateAutonomyPolicy(eligible, { ...enabledConfig, enabled: false, paused: true, contactEmail: "preview@postr.test" }); expect(decision.outcome).toBe("REVIEW"); expect(decision.reasons.join(" ")).toContain("shadow or paused"); expect(decision.reasons.join(" ")).toContain("postal details"); });
+  it("hard-stops suppressed, duplicate, stopped, or already-attempted delivery", () => { const decision = evaluateAutonomyPolicy({ ...eligible, isDuplicate: true, isSuppressed: true, replyReceivedAt: new Date(), existingDeliveryAttempt: true }, enabledConfig); expect(decision.outcome).toBe("DENY"); expect(decision.reasons.length).toBeGreaterThanOrEqual(4); });
+  it("denies delivery when a normalized recipient address is unavailable", () => { expect(evaluateAutonomyPolicy({ ...eligible, email: null }, enabledConfig)).toMatchObject({ outcome: "DENY", reasons: expect.arrayContaining(["Recipient email is missing."]) }); });
+  it("moves exhausted global or domain budgets to review", () => { expect(evaluateAutonomyPolicy({ ...eligible, dailySentCount: 5 }, enabledConfig).outcome).toBe("REVIEW"); expect(evaluateAutonomyPolicy({ ...eligible, domainDailySentCount: 1 }, enabledConfig).outcome).toBe("REVIEW"); });
+});
