@@ -37,6 +37,16 @@ tr:hover{background:rgba(255,255,255,.03);cursor:pointer}
 .badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;border:1px solid var(--line)}
 .badge.contacted{color:#69d3ae}.badge.not_yet{color:#7cb7ff}.badge.no_contact{color:#ff8c8c}
 .leaflet-container{background:#0a1218}
+.gb{background:rgba(18,24,32,.92);border:1px solid var(--line);border-radius:14px;margin-bottom:14px}
+.gb>summary{list-style:none;cursor:pointer;padding:12px 14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}.gb>summary::-webkit-details-marker{display:none}
+.gb>summary::before{content:"\25B8";color:var(--muted);transition:transform .15s}.gb[open]>summary::before{transform:rotate(90deg)}
+.gb .gb-title{font-weight:700}.gb .gb-sum{color:var(--muted);font-size:12px}
+.gb-body{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:0 14px 14px}@media(max-width:900px){.gb-body{grid-template-columns:1fr}}
+.gb dl{display:grid;grid-template-columns:150px 1fr;gap:4px 10px;margin:0;font-size:13px}.gb dt{color:var(--muted)}.gb dd{margin:0}
+.gb-days{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.gb-day{border:1px solid var(--line);border-radius:8px;padding:4px 8px;font-size:12px;text-align:center}.gb-day b{display:block;font-size:14px}
+.gb textarea{width:100%;min-height:92px;resize:vertical;background:#0f151c;border:1px solid var(--line);color:var(--text);border-radius:8px;padding:8px 10px;font:inherit}
+.gb-row{display:flex;gap:10px;align-items:center;margin-top:8px}.gb-row button{background:#123026;border-color:#2c6b56;color:var(--accent);font-weight:600}.gb-row button:disabled{opacity:.5;cursor:not-allowed}
+.gb-msg{font-size:12px;color:var(--muted)}.gb-msg.ok{color:var(--accent)}.gb-msg.err{color:var(--red)}
 </style>
 </head>
 <body>
@@ -50,6 +60,21 @@ tr:hover{background:rgba(255,255,255,.03);cursor:pointer}
   <div class="subtitle" id="domainTag"></div>
 </header>
 <section class="cards" id="cards"></section>
+<details class="gb" id="gb">
+  <summary><span class="gb-title">Grok Bot control</span><span class="gb-sum" id="gbSum">Loading status…</span></summary>
+  <div class="gb-body">
+    <div>
+      <dl id="gbStatus"><dt>Status</dt><dd>Loading…</dd></dl>
+      <div class="gb-days" id="gbDays"></div>
+    </div>
+    <div>
+      <label for="gbCmd">Command for Chief of Staff</label>
+      <textarea id="gbCmd" maxlength="1000" placeholder="e.g. pause tomorrow's fill, or send me today's reply summary"></textarea>
+      <div class="gb-row"><button type="button" id="gbSend">Send</button><span class="gb-msg" id="gbCount">0 / 1000</span></div>
+      <div class="gb-msg" id="gbMsg" role="status" aria-live="polite"></div>
+    </div>
+  </div>
+</details>
 <section class="toolbar">
   <label>Type<select id="kind"><option value="">All</option><option value="creator">Creators</option><option value="brand">Brands</option></select></label>
   <label>Status<select id="status"><option value="">All</option><option value="contacted">Contacted</option><option value="not_yet">Not yet</option><option value="no_contact">No contact</option></select></label>
@@ -187,6 +212,40 @@ $('rows').addEventListener('click',ev=>{
   const c=contacts.find(x=>x.email===tr.dataset.email); showContact(c);
   if(c&&c.lat!=null&&map) map.setView([c.lat,c.lng], Math.max(map.getZoom(),6));
 });
+function esc(v){return String(v??'—').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]))}
+function fmtN(v){return typeof v==='number'?v.toLocaleString():esc(v)}
+async function loadStatus(){
+  try{
+    const st=await (await fetch('status.json',{cache:'no-store'})).json();
+    const w=st.warmup||{}, t=st.totals||{};
+    $('gbSum').textContent=`Warm-up day ${w.day??'—'} · cap ${w.today_cap??'—'}/day · last fill ${st.last_fill_et||'—'} (${st.last_sent_count??'—'})`;
+    $('gbStatus').innerHTML=[
+      ['Warm-up day', `${esc(w.day)} (cap ${fmtN(w.today_cap)}/day)`],
+      ['Last fill (ET)', `${esc(st.last_fill_et)} · ${fmtN(st.last_sent_count)} sent`],
+      ['Next fill', esc(st.next_fill)],
+      ['Contacts', `${fmtN(t.contacts)} (${fmtN(t.creators)} creators · ${fmtN(t.brands)} brands)`],
+      ['Contacted', fmtN(t.contacted)], ['Not contacted', fmtN(t.not_contacted)], ['No-contact', fmtN(t.no_contact)],
+      ['Status generated', esc(st.generated_at)],
+    ].map(([k,v])=>`<dt>${k}</dt><dd>${v}</dd>`).join('');
+    $('gbDays').innerHTML=(st.sends_by_et_date||[]).map(d=>`<div class="gb-day">${esc((d.date||'').slice(5))}<b>${fmtN(d.sent)}</b></div>`).join('');
+  }catch(e){ $('gbSum').textContent='Status unavailable'; $('gbStatus').innerHTML=`<dt>Status</dt><dd>unavailable (${esc(e.message)})</dd>`; }
+}
+$('gbCmd').addEventListener('input',()=>{$('gbCount').textContent=`${$('gbCmd').value.length} / 1000`});
+$('gbSend').onclick=async()=>{
+  const cmd=$('gbCmd').value.trim(), msg=$('gbMsg'), btn=$('gbSend');
+  msg.className='gb-msg';
+  if(!cmd){msg.textContent='Type a command first.';msg.classList.add('err');return}
+  if(cmd.length>1000){msg.textContent='Command is over 1000 characters.';msg.classList.add('err');return}
+  btn.disabled=true; msg.textContent='Sending…';
+  try{
+    const r=await fetch('/api/command',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({command:cmd})});
+    let body={}; try{body=await r.json()}catch(_){}
+    if(r.ok){msg.textContent='Sent to Chief of Staff — reply arrives in Grok Bot chat';msg.classList.add('ok');$('gbCmd').value='';$('gbCount').textContent='0 / 1000'}
+    else{msg.textContent=`Error ${r.status}: ${body.error||r.statusText||'request failed'}`;msg.classList.add('err')}
+  }catch(e){msg.textContent='Error: '+e.message;msg.classList.add('err')}
+  finally{btn.disabled=false}
+};
+loadStatus();
 load().catch(e=>{ $('updated').textContent='Failed to load: '+e.message; });
 </script>
 </body>
